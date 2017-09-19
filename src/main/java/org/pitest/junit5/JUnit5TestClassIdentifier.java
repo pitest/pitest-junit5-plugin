@@ -24,11 +24,11 @@ import org.pitest.testapi.TestClassIdentifier;
  */
 public class JUnit5TestClassIdentifier implements TestClassIdentifier {
 
-    private static final ClassName TEST_ANNOTATION_NAME = new ClassName("org.junit.jupiter.api.Test");
+    private static final ClassName TEST_ANNOTATION_NAME = ClassName.fromString("org.junit.jupiter.api.Test");
 
-    private static final ClassName TEST_FACTORY_ANNOTATION_NAME = new ClassName("org.junit.jupiter.api.TestFactory");
+    private static final ClassName TEST_FACTORY_ANNOTATION_NAME = ClassName.fromString("org.junit.jupiter.api.TestFactory");
 
-    private static final ClassName NESTED_ANNOTATION_NAME = new ClassName("org.junit.jupiter.api.Nested");
+    private static final ClassName NESTED_ANNOTATION_NAME = ClassName.fromString("org.junit.jupiter.api.Nested");
 
     public JUnit5TestClassIdentifier() {
     }

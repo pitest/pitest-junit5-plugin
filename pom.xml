@@ -13,10 +13,10 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <assertj.version>3.6.2</assertj.version>
-        <junit.platform.version>1.0.0-M3</junit.platform.version>
-        <junit.version>5.0.0-M3</junit.version>
+        <junit.platform.version>1.0.0</junit.platform.version>
+        <junit.version>5.0.0</junit.version>
         <mockito.version>2.7.6</mockito.version>
-        <pitest.version>1.1.11</pitest.version>
+        <pitest.version>1.2.3</pitest.version>
     </properties>
     
     <dependencies>
