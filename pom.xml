@@ -109,40 +109,6 @@
                     </archive>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <artifactSet>
-                        <includes>
-                            <include>org.junit.jupiter:*</include>
-                            <include>org.junit.platform:*</include>
-                            <include>org.opentest4j:*</include>
-                        </includes>
-                    </artifactSet>
-                    <relocations>
-                        <relocation>
-                            <pattern>org.junit</pattern>
-                            <shadedPattern>org.pitest.junit5.org.junit</shadedPattern>
-                            <excludes>
-                                <exclude>org.junit.jupiter.api.*</exclude>
-                            </excludes>
-                        </relocation>
-                        <relocation>
-                            <pattern>org.opentest4j</pattern>
-                            <shadedPattern>org.pitest.junit5.org.opentest4j</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 </project>
