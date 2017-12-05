@@ -20,7 +20,7 @@ e.g for maven
           <dependency>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-junit5-plugin</artifactId>
-            <version>0.1</version>
+            <version>0.2</version>
           </dependency>
         </dependencies>
 
@@ -41,7 +41,7 @@ buildscript {
    configurations.maybeCreate("pitest")
    dependencies {
        classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.11'
-       pitest 'org.pitest:pitest-junit5-plugin:0.1'
+       pitest 'org.pitest:pitest-junit5-plugin:0.2'
    }
 }
 
