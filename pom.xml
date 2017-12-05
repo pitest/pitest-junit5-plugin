@@ -17,7 +17,7 @@
 		<junit.platform.version>1.0.2</junit.platform.version>
 		<junit.version>5.0.2</junit.version>
 		<mockito.version>2.7.6</mockito.version>
-		<pitest.version>1.2.3</pitest.version>
+		<pitest.version>1.2.5</pitest.version>
 	</properties>
 
 	<scm>
