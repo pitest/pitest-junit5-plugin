@@ -5,6 +5,10 @@
 	<groupId>org.pitest</groupId>
 	<artifactId>pitest-junit5-plugin</artifactId>
 	<version>0.2-SNAPSHOT</version>
+        
+	<name>pitest-junit5-plugin</name>
+	<url>http://pitest.org</url>
+	<description>JUnit 5 plugin for pitest</description>
 
 	<packaging>jar</packaging>
 
@@ -30,7 +34,13 @@
 		<url>https://github.com/hcoles/pitest/issues</url>
 		<system>GitHub</system>
 	</issueManagement>
-
+	<developers>
+		<developer>
+			<id>henry</id>
+			<name>Henry Coles</name>
+			<email>henry@pitest.org</email>
+		</developer>
+	</developers>
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
