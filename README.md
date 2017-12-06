@@ -49,6 +49,7 @@ apply plugin: "info.solidsoft.pitest"
 
 pitest {
     pitestVersion = "1.2.5"
+    targetClasses = ['our.base.package.*']  // by default "${project.group}.*"
 }
 ```
 
