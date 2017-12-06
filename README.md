@@ -45,6 +45,8 @@ buildscript {
    }
 }
 
+apply plugin: "info.solidsoft.pitest"
+
 pitest {
     pitestVersion = "1.2.5"
 }
