@@ -52,6 +52,7 @@ pitest {
     targetClasses = ['our.base.package.*']  // by default "${project.group}.*"
 }
 ```
+See [gradle-pitest-plugin documentation](http://gradle-pitest-plugin.solidsoft.info/) for more configuration options.
 
 ## About
 
