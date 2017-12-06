@@ -40,15 +40,19 @@ buildscript {
    }
    configurations.maybeCreate("pitest")
    dependencies {
-       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.1.11'
+       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.2.4'
        pitest 'org.pitest:pitest-junit5-plugin:0.2'
    }
 }
 
+apply plugin: "info.solidsoft.pitest"
+
 pitest {
     pitestVersion = "1.2.5"
+    targetClasses = ['our.base.package.*']  // by default "${project.group}.*"
 }
 ```
+See [gradle-pitest-plugin documentation](http://gradle-pitest-plugin.solidsoft.info/) for more configuration options.
 
 ## About
 
