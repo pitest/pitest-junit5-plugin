@@ -36,4 +36,9 @@ public class JUnit5TestPluginFactory implements TestPluginFactory {
         return "JUnit 5 test framework support";
     }
 
+    @Override
+    public String name() {
+      return "junit5";
+    }
+
 }

@@ -17,7 +17,6 @@ package org.pitest.junit5;
 import org.pitest.functional.Option;
 import org.pitest.help.PitHelpError;
 import org.pitest.testapi.Configuration;
-import org.pitest.testapi.TestClassIdentifier;
 import org.pitest.testapi.TestSuiteFinder;
 import org.pitest.testapi.TestUnitFinder;
 
@@ -38,11 +37,6 @@ public class JUnit5Configuration implements Configuration {
     @Override
     public TestSuiteFinder testSuiteFinder() {
         return new JUnit5TestSuiteFinder();
-    }
-
-    @Override
-    public TestClassIdentifier testClassIdentifier() {
-        return new JUnit5TestClassIdentifier();
     }
 
     @Override

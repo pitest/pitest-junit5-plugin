@@ -14,10 +14,8 @@
  */
 package org.pitest.junit5;
 
-import org.pitest.junit5.foreignclassloader.ForeignClassLoaderLauncher;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Callable;
+
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.support.descriptor.MethodSource;
@@ -27,13 +25,9 @@ import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
-import org.pitest.functional.SideEffect1;
 import org.pitest.junit5.util.TestIdentifiers;
 import org.pitest.testapi.AbstractTestUnit;
 import org.pitest.testapi.ResultCollector;
-import org.pitest.util.ClassLoaderDetectionStrategy;
-import org.pitest.util.IsolationUtils;
-import org.pitest.util.Unchecked;
 
 /**
  *
@@ -41,36 +35,21 @@ import org.pitest.util.Unchecked;
  */
 public class JUnit5TestUnit extends AbstractTestUnit {
 
-    private final ClassLoaderDetectionStrategy classLoaderDetection;
-
     private final TestIdentifier testIdentifier;
 
     public JUnit5TestUnit(TestIdentifier testIdentifier) {
         super(TestIdentifiers.toDescription(testIdentifier));
-
-        this.classLoaderDetection = IsolationUtils.loaderDetectionStrategy();
         this.testIdentifier = testIdentifier;
     }
 
     @Override
-    public void execute(ClassLoader classLoader, ResultCollector resultCollector) {
+    public void execute(ResultCollector resultCollector) {
         Launcher launcher = LauncherFactory.create();
         LauncherDiscoveryRequest launcherDiscoveryRequest = LauncherDiscoveryRequestBuilder
                 .request()
                 .selectors(DiscoverySelectors.selectUniqueId(testIdentifier.getUniqueId()))
                 .build();
 
-        if (classLoaderDetection.fromDifferentLoader(launcher.getClass(), classLoader)) {
-            Callable<List<String>> foreignClassLoaderLauncher = (Callable<List<String>>) IsolationUtils.cloneForLoader(new ForeignClassLoaderLauncher(launcher, launcherDiscoveryRequest), classLoader);
-            try {
-                foreignClassLoaderLauncher.call()
-                        .stream()
-                        .map(string -> (SideEffect1<ResultCollector>) IsolationUtils.fromXml(string))
-                        .forEach(event -> event.apply(resultCollector));
-            } catch (Exception e) {
-                throw Unchecked.translateCheckedException(e);
-            }
-        } else {
             launcher.registerTestExecutionListeners(new TestExecutionListener() {
                 @Override
                 public void executionSkipped(TestIdentifier testIdentifier, String reason) {
@@ -107,7 +86,6 @@ public class JUnit5TestUnit extends AbstractTestUnit {
 
             });
             launcher.execute(launcherDiscoveryRequest);
-        }
     }
 
 }

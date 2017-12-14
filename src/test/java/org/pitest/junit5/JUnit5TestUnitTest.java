@@ -14,9 +14,11 @@
  */
 package org.pitest.junit5;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.ArrayList;
 import java.util.List;
-import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation;
@@ -26,7 +28,6 @@ import org.pitest.junit5.repository.TestClassWithTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestFactoryAnnotation;
 import org.pitest.testapi.Description;
 import org.pitest.testapi.ResultCollector;
-import org.pitest.util.IsolationUtils;
 
 /**
  *
@@ -34,55 +35,9 @@ import org.pitest.util.IsolationUtils;
  */
 public class JUnit5TestUnitTest {
 
-    private static class TestResultCollector implements ResultCollector {
-
-        private final List<Description> skipped = new ArrayList<>();
-        private final List<Description> started = new ArrayList<>();
-        private final List<Description> ended = new ArrayList<>();
-
-        @Override
-        public void notifyEnd(Description description, Throwable t) {
-            notifyEnd(description);
-        }
-
-        @Override
-        public void notifyEnd(Description description) {
-            ended.add(description);
-        }
-
-        @Override
-        public void notifyStart(Description description) {
-            started.add(description);
-        }
-
-        @Override
-        public void notifySkipped(Description description) {
-            skipped.add(description);
-        }
-
-        @Override
-        public boolean shouldExit() {
-            return false;
-        }
-
-        public List<Description> getSkipped() {
-            return skipped;
-        }
-
-        public List<Description> getStarted() {
-            return started;
-        }
-
-        public List<Description> getEnded() {
-            return ended;
-        }
-
-    }
-
     @Test
     public void testTestClassWithTestAnnotation() {
-        TestResultCollector resultCollector = new TestResultCollector();
-        new JUnit5TestUnitFinder().findTestUnits(TestClassWithTestAnnotation.class).stream().forEach(testUnit -> testUnit.execute(IsolationUtils.getContextClassLoader(), resultCollector));
+        TestResultCollector resultCollector = findTestsIn(TestClassWithTestAnnotation.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
         assertThat(resultCollector.getStarted()).hasSize(1);
@@ -91,8 +46,7 @@ public class JUnit5TestUnitTest {
 
     @Test
     public void test3TestClassWithTestFactoryAnnotation() {
-        TestResultCollector resultCollector = new TestResultCollector();
-        new JUnit5TestUnitFinder().findTestUnits(TestClassWithTestFactoryAnnotation.class).stream().forEach(testUnit -> testUnit.execute(IsolationUtils.getContextClassLoader(), resultCollector));
+        TestResultCollector resultCollector = findTestsIn(TestClassWithTestFactoryAnnotation.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
         assertThat(resultCollector.getStarted()).hasSize(1);
@@ -101,18 +55,19 @@ public class JUnit5TestUnitTest {
 
     @Test
     public void testTestClassWithNestedAnnotationAndNestedTestAnnotation() {
-        TestResultCollector resultCollector = new TestResultCollector();
-        new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationAndNestedTestAnnotation.NestedClass.class).stream().forEach(testUnit -> testUnit.execute(IsolationUtils.getContextClassLoader(), resultCollector));
+        TestResultCollector resultCollector = 
+        findTestsIn(TestClassWithNestedAnnotationAndNestedTestAnnotation.NestedClass.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
         assertThat(resultCollector.getStarted()).hasSize(1);
         assertThat(resultCollector.getEnded()).hasSize(1);
     }
 
+
     @Test
     public void testTestClassWithNestedAnnotationAndNestedTestFactoryAnnotation() {
-        TestResultCollector resultCollector = new TestResultCollector();
-        new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.class).stream().forEach(testUnit -> testUnit.execute(IsolationUtils.getContextClassLoader(), resultCollector));
+        TestResultCollector resultCollector =
+        findTestsIn(TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
         assertThat(resultCollector.getStarted()).hasSize(1);
@@ -121,9 +76,9 @@ public class JUnit5TestUnitTest {
 
     @Test
     public void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation() {
-        TestResultCollector resultCollector = new TestResultCollector();
-        new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.NestedClass.NestedNestedClass.class).stream().forEach(testUnit -> testUnit.execute(IsolationUtils.getContextClassLoader(), resultCollector));
-
+        TestResultCollector resultCollector = 
+        findTestsIn(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.NestedClass.NestedNestedClass.class);
+     
         assertThat(resultCollector.getSkipped()).isEmpty();
         assertThat(resultCollector.getStarted()).hasSize(1);
         assertThat(resultCollector.getEnded()).hasSize(1);
@@ -131,12 +86,65 @@ public class JUnit5TestUnitTest {
 
     @Test
     public void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation() {
-        TestResultCollector resultCollector = new TestResultCollector();
-        new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.NestedNestedClass.class).stream().forEach(testUnit -> testUnit.execute(IsolationUtils.getContextClassLoader(), resultCollector));
+        TestResultCollector resultCollector = 
+        findTestsIn(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.NestedNestedClass.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
         assertThat(resultCollector.getStarted()).hasSize(1);
         assertThat(resultCollector.getEnded()).hasSize(1);
     }
+    
+    private TestResultCollector findTestsIn(Class<?> clazz) {
+      TestResultCollector resultCollector = new TestResultCollector();
+      new JUnit5TestUnitFinder().findTestUnits(clazz)
+      .stream()
+      .forEach(testUnit -> testUnit.execute(resultCollector));
+      return resultCollector;
+    }
 
+    private static class TestResultCollector implements ResultCollector {
+
+      private final List<Description> skipped = new ArrayList<>();
+      private final List<Description> started = new ArrayList<>();
+      private final List<Description> ended = new ArrayList<>();
+
+      @Override
+      public void notifyEnd(Description description, Throwable t) {
+          notifyEnd(description);
+      }
+
+      @Override
+      public void notifyEnd(Description description) {
+          ended.add(description);
+      }
+
+      @Override
+      public void notifyStart(Description description) {
+          started.add(description);
+      }
+
+      @Override
+      public void notifySkipped(Description description) {
+          skipped.add(description);
+      }
+
+      @Override
+      public boolean shouldExit() {
+          return false;
+      }
+
+      public List<Description> getSkipped() {
+          return skipped;
+      }
+
+      public List<Description> getStarted() {
+          return started;
+      }
+
+      public List<Description> getEnded() {
+          return ended;
+      }
+
+  }
+    
 }
