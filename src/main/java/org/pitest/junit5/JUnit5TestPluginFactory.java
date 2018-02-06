@@ -27,7 +27,10 @@ import org.pitest.testapi.TestPluginFactory;
 public class JUnit5TestPluginFactory implements TestPluginFactory {
 
     @Override
-    public Configuration createTestFrameworkConfiguration(TestGroupConfig config, ClassByteArraySource source, Collection<String> excludedRunners) {
+    public Configuration createTestFrameworkConfiguration(TestGroupConfig config, 
+        ClassByteArraySource source, 
+        Collection<String> excludedRunners,
+        Collection<String> notYetSupported) {
         return new JUnit5Configuration();
     }
 
@@ -40,5 +43,6 @@ public class JUnit5TestPluginFactory implements TestPluginFactory {
     public String name() {
       return "junit5";
     }
+
 
 }
