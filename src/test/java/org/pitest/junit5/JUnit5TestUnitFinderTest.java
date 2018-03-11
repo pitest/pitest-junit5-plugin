@@ -41,7 +41,7 @@ public class JUnit5TestUnitFinderTest {
     }
 
     @Test
-    public void test3TestClassWithTestFactoryAnnotation() {
+    public void testTestClassWithTestFactoryAnnotation() {
         assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithTestFactoryAnnotation.class)).hasSize(1);
     }
 
