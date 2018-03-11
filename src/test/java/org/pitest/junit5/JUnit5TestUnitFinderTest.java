@@ -22,8 +22,11 @@ import org.pitest.junit5.repository.TestClassWithNestedAnnotationWithNestedAnnot
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedClassWithNestedAnnotationAndNestedTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedClassWithNestedAnnotationAndNestedTestFactoryAnnotation;
+import org.pitest.junit5.repository.TestClassWithParameterizedTestAnnotation;
+import org.pitest.junit5.repository.TestClassWithRepeatedTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestFactoryAnnotation;
+import org.pitest.junit5.repository.TestClassWithTestTemplateAnnotation;
 import org.pitest.junit5.repository.TestClassWithoutAnnotations;
 
 /**
@@ -36,6 +39,16 @@ public class JUnit5TestUnitFinderTest {
     }
 
     @Test
+    public void testTestClassWithParameterizedTestAnnotation() {
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithParameterizedTestAnnotation.class)).hasSize(1);
+    }
+
+    @Test
+    public void testTestClassWithRepeatedTestAnnotation() {
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithRepeatedTestAnnotation.class)).hasSize(1);
+    }
+
+    @Test
     public void testTestClassWithTestAnnotation() {
         assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithTestAnnotation.class)).hasSize(1);
     }
@@ -43,6 +56,11 @@ public class JUnit5TestUnitFinderTest {
     @Test
     public void testTestClassWithTestFactoryAnnotation() {
         assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithTestFactoryAnnotation.class)).hasSize(1);
+    }
+
+    @Test
+    public void testTestClassWithTestTemplateAnnotation() {
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithTestTemplateAnnotation.class)).hasSize(1);
     }
 
     @Test
