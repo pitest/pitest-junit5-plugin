@@ -14,7 +14,8 @@
  */
 package org.pitest.junit5;
 
-import org.pitest.functional.Option;
+import java.util.Optional;
+
 import org.pitest.help.PitHelpError;
 import org.pitest.testapi.Configuration;
 import org.pitest.testapi.TestSuiteFinder;
@@ -40,8 +41,8 @@ public class JUnit5Configuration implements Configuration {
     }
 
     @Override
-    public Option<PitHelpError> verifyEnvironment() {
-        return Option.none();
+    public Optional<PitHelpError> verifyEnvironment() {
+        return Optional.empty();
     }
 
 }
