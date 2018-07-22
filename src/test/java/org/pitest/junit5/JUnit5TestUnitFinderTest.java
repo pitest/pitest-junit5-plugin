@@ -16,6 +16,7 @@ package org.pitest.junit5;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
+import org.pitest.junit5.repository.TestClassWithInheritedTestMethod;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation;
@@ -65,28 +66,28 @@ public class JUnit5TestUnitFinderTest {
 
     @Test
     public void testTestClassWithNestedAnnotationAndNestedTestAnnotation() {
-        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationAndNestedTestAnnotation.class)).isEmpty();
-        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationAndNestedTestAnnotation.NestedClass.class)).hasSize(1);
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationAndNestedTestAnnotation.class)).hasSize(1);
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationAndNestedTestAnnotation.NestedClass.class)).isEmpty();
     }
 
     @Test
     public void testTestClassWithNestedAnnotationAndNestedTestFactoryAnnotation() {
-        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.class)).isEmpty();
-        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.class)).hasSize(1);
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.class)).hasSize(1);
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.class)).isEmpty();
     }
 
     @Test
     public void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation() {
-        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.class)).isEmpty();
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.class)).hasSize(1);
         assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.NestedClass.class)).isEmpty();
-        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.NestedClass.NestedNestedClass.class)).hasSize(1);
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.NestedClass.NestedNestedClass.class)).isEmpty();
     }
 
     @Test
     public void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation() {
-        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.class)).isEmpty();
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.class)).hasSize(1);
         assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.class)).isEmpty();
-        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.NestedNestedClass.class)).hasSize(1);
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.NestedNestedClass.class)).isEmpty();
     }
 
     @Test
@@ -102,6 +103,11 @@ public class JUnit5TestUnitFinderTest {
     @Test
     public void testTestClassWithNestedClassWithNestedAnnotationAndNestedTestFactoryAnnotation() {
         assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithNestedClassWithNestedAnnotationAndNestedTestFactoryAnnotation.class)).isEmpty();
+    }
+
+    @Test
+    public void testTestClassWithInheritedTestMethod() {
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithInheritedTestMethod.class)).hasSize(1);
     }
 
 }
