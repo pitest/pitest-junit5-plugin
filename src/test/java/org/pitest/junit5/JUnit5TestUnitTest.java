@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.pitest.junit5.repository.TestClassWithInheritedTestMethod;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation;
@@ -56,7 +57,7 @@ public class JUnit5TestUnitTest {
     @Test
     public void testTestClassWithNestedAnnotationAndNestedTestAnnotation() {
         TestResultCollector resultCollector = 
-        findTestsIn(TestClassWithNestedAnnotationAndNestedTestAnnotation.NestedClass.class);
+        findTestsIn(TestClassWithNestedAnnotationAndNestedTestAnnotation.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
         assertThat(resultCollector.getStarted()).hasSize(1);
@@ -67,7 +68,7 @@ public class JUnit5TestUnitTest {
     @Test
     public void testTestClassWithNestedAnnotationAndNestedTestFactoryAnnotation() {
         TestResultCollector resultCollector =
-        findTestsIn(TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.class);
+        findTestsIn(TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
         assertThat(resultCollector.getStarted()).hasSize(1);
@@ -77,7 +78,7 @@ public class JUnit5TestUnitTest {
     @Test
     public void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation() {
         TestResultCollector resultCollector = 
-        findTestsIn(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.NestedClass.NestedNestedClass.class);
+        findTestsIn(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.class);
      
         assertThat(resultCollector.getSkipped()).isEmpty();
         assertThat(resultCollector.getStarted()).hasSize(1);
@@ -87,7 +88,17 @@ public class JUnit5TestUnitTest {
     @Test
     public void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation() {
         TestResultCollector resultCollector = 
-        findTestsIn(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.NestedNestedClass.class);
+        findTestsIn(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.class);
+
+        assertThat(resultCollector.getSkipped()).isEmpty();
+        assertThat(resultCollector.getStarted()).hasSize(1);
+        assertThat(resultCollector.getEnded()).hasSize(1);
+    }
+
+    @Test
+    public void testTestClassWithInheritedTestMethod() {
+        TestResultCollector resultCollector =
+        findTestsIn(TestClassWithInheritedTestMethod.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
         assertThat(resultCollector.getStarted()).hasSize(1);

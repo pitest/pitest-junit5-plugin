@@ -16,6 +16,8 @@ package org.pitest.junit5;
 
 import java.util.List;
 import java.util.Set;
+
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.support.descriptor.MethodSource;
@@ -40,6 +42,10 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
 
     @Override
     public List<TestUnit> findTestUnits(Class<?> clazz) {
+        if(clazz.getEnclosingClass() != null) {
+            return emptyList();
+        }
+
         TestPlan testPlan = launcher.discover(LauncherDiscoveryRequestBuilder
                 .request()
                 .selectors(DiscoverySelectors.selectClass(clazz))
@@ -51,7 +57,6 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                 .flatMap(Set::stream)
                 .filter(testIdentifier -> testIdentifier.getSource().isPresent())
                 .filter(testIdentifier -> testIdentifier.getSource().get() instanceof MethodSource)
-                .filter(testIdentifier -> ((MethodSource) testIdentifier.getSource().get()).getClassName().equals(clazz.getName()))
                 .map(testIdentifier -> new JUnit5TestUnit(testIdentifier))
                 .collect(toList());
     }
