@@ -25,8 +25,8 @@ import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
-import org.pitest.junit5.util.TestIdentifiers;
 import org.pitest.testapi.AbstractTestUnit;
+import org.pitest.testapi.Description;
 import org.pitest.testapi.ResultCollector;
 
 /**
@@ -35,10 +35,13 @@ import org.pitest.testapi.ResultCollector;
  */
 public class JUnit5TestUnit extends AbstractTestUnit {
 
+    private final Class<?> testClass;
+
     private final TestIdentifier testIdentifier;
 
-    public JUnit5TestUnit(TestIdentifier testIdentifier) {
-        super(TestIdentifiers.toDescription(testIdentifier));
+    public JUnit5TestUnit(Class<?> testClass, TestIdentifier testIdentifier) {
+        super(new Description(testIdentifier.getDisplayName(), testClass));
+        this.testClass = testClass;
         this.testIdentifier = testIdentifier;
     }
 
@@ -55,7 +58,7 @@ public class JUnit5TestUnit extends AbstractTestUnit {
                 public void executionSkipped(TestIdentifier testIdentifier, String reason) {
                     testIdentifier.getSource().ifPresent(testSource -> {
                         if (testSource instanceof MethodSource) {
-                            resultCollector.notifySkipped(TestIdentifiers.toDescription(testIdentifier));
+                            resultCollector.notifySkipped(new Description(testIdentifier.getDisplayName(), testClass));
                         }
                     });
                 }
@@ -64,7 +67,7 @@ public class JUnit5TestUnit extends AbstractTestUnit {
                 public void executionStarted(TestIdentifier testIdentifier) {
                     testIdentifier.getSource().ifPresent(testSource -> {
                         if (testSource instanceof MethodSource) {
-                            resultCollector.notifyStart(TestIdentifiers.toDescription(testIdentifier));
+                            resultCollector.notifyStart(new Description(testIdentifier.getDisplayName(), testClass));
                         }
                     });
                 }
@@ -76,9 +79,9 @@ public class JUnit5TestUnit extends AbstractTestUnit {
                             Optional<Throwable> throwable = testExecutionResult.getThrowable();
 
                             if (throwable.isPresent()) {
-                                resultCollector.notifyEnd(TestIdentifiers.toDescription(testIdentifier), throwable.get());
+                                resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass), throwable.get());
                             } else {
-                                resultCollector.notifyEnd(TestIdentifiers.toDescription(testIdentifier));
+                                resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass));
                             }
                         }
                     });
