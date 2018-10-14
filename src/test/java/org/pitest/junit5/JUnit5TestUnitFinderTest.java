@@ -28,6 +28,7 @@ import org.pitest.junit5.repository.TestClassWithRepeatedTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestFactoryAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestTemplateAnnotation;
+import org.pitest.junit5.repository.TestClassWithTwoTestMethods;
 import org.pitest.junit5.repository.TestClassWithoutAnnotations;
 
 /**
@@ -47,7 +48,8 @@ public class JUnit5TestUnitFinderTest {
 
     @Test
     public void testTestClassWithParameterizedTestAnnotation() {
-        assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithParameterizedTestAnnotation.class)).hasSize(1);
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(
+                TestClassWithParameterizedTestAnnotation.class)).hasSize(1);
     }
 
     @Test

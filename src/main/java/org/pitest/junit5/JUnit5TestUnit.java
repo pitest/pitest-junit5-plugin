@@ -14,8 +14,6 @@
  */
 package org.pitest.junit5;
 
-import java.util.Optional;
-
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.support.descriptor.MethodSource;
@@ -23,14 +21,16 @@ import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
+import org.junit.platform.launcher.TestPlan;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.pitest.testapi.AbstractTestUnit;
 import org.pitest.testapi.Description;
 import org.pitest.testapi.ResultCollector;
 
+import java.util.Optional;
+
 /**
- *
  * @author Tobias Stadler
  */
 public class JUnit5TestUnit extends AbstractTestUnit {
@@ -48,51 +48,80 @@ public class JUnit5TestUnit extends AbstractTestUnit {
     @Override
     public void execute(ResultCollector resultCollector) {
         Launcher launcher = LauncherFactory.create();
+
+        String executionId = getExecutionId(resultCollector);
         LauncherDiscoveryRequest launcherDiscoveryRequest = LauncherDiscoveryRequestBuilder
                 .request()
+                .configurationParameter("junit.jupiter.extensions.autodetection.enabled", "true")
+                .configurationParameter(ConditionalTestFilter.EXECUTION_ID_KEY, executionId)
                 .selectors(DiscoverySelectors.selectUniqueId(testIdentifier.getUniqueId()))
                 .build();
 
-            launcher.registerTestExecutionListeners(new TestExecutionListener() {
-                @Override
-                public void executionSkipped(TestIdentifier testIdentifier, String reason) {
-                    testIdentifier.getSource().ifPresent(testSource -> {
-                        if (testSource instanceof MethodSource) {
-                            resultCollector.notifySkipped(new Description(testIdentifier.getDisplayName(), testClass));
-                        }
-                    });
-                }
+        // todo: shall we inject the registry?
+        TestUnitExecutionsRegistry executionsRegistry = TestUnitExecutionsRegistry.getInstance();
+        launcher.registerTestExecutionListeners(new TestExecutionListener() {
+            @Override
+            public void testPlanExecutionStarted(TestPlan testPlan) {
+                executionsRegistry.add(executionId);
+            }
 
-                @Override
-                public void executionStarted(TestIdentifier testIdentifier) {
-                    testIdentifier.getSource().ifPresent(testSource -> {
-                        if (testSource instanceof MethodSource) {
-                            resultCollector.notifyStart(new Description(testIdentifier.getDisplayName(), testClass));
-                        }
-                    });
-                }
+            @Override
+            public void testPlanExecutionFinished(TestPlan testPlan) {
+                executionsRegistry.remove(executionId);
+            }
 
-                @Override
-                public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
-                    testIdentifier.getSource().ifPresent(testSource -> {
-                        if (testSource instanceof MethodSource) {
-                            Optional<Throwable> throwable = testExecutionResult.getThrowable();
+            @Override
+            public void executionSkipped(TestIdentifier testIdentifier, String reason) {
+                testIdentifier.getSource().ifPresent(testSource -> {
+                    if (testSource instanceof MethodSource) {
+                        resultCollector
+                                .notifySkipped(new Description(testIdentifier.getDisplayName(), testClass));
+                    }
+                });
+            }
 
-                            if (TestExecutionResult.Status.ABORTED == testExecutionResult.getStatus()) {
-                                // abort treated as success
-                                // see: https://junit.org/junit5/docs/5.0.0/api/org/junit/jupiter/api/Assumptions.html
-                                resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass));
-                            } else if (throwable.isPresent()) {
-                                resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass), throwable.get());
-                            } else {
-                                resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass));
+            @Override
+            public void executionStarted(TestIdentifier testIdentifier) {
+                testIdentifier.getSource().ifPresent(testSource -> {
+                    if (testSource instanceof MethodSource) {
+                        resultCollector
+                                .notifyStart(new Description(testIdentifier.getDisplayName(), testClass));
+                    }
+                });
+            }
+
+            @Override
+            public void executionFinished(TestIdentifier testIdentifier,
+                                          TestExecutionResult testExecutionResult) {
+                testIdentifier.getSource().ifPresent(testSource -> {
+                    if (testSource instanceof MethodSource) {
+                        Optional<Throwable> throwable = testExecutionResult.getThrowable();
+
+                        if (TestExecutionResult.Status.ABORTED == testExecutionResult.getStatus()) {
+                            // abort treated as success
+                            // see: https://junit.org/junit5/docs/5.0.0/api/org/junit/jupiter/api/Assumptions.html
+                            resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass));
+                        } else if (throwable.isPresent()) {
+                            resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass),
+                                    throwable.get());
+
+                            if (resultCollector.shouldExit()) {
+                                executionsRegistry.abortExecution(executionId);
                             }
+                        } else {
+                            resultCollector
+                                    .notifyEnd(new Description(testIdentifier.getDisplayName(), testClass));
                         }
-                    });
-                }
+                    }
+                });
+            }
 
-            });
-            launcher.execute(launcherDiscoveryRequest);
+        });
+        launcher.execute(launcherDiscoveryRequest);
     }
 
+    private String getExecutionId(ResultCollector resultCollector) {
+        return testIdentifier.getUniqueId() + ":"
+                + System.identityHashCode(resultCollector);
+    }
 }
