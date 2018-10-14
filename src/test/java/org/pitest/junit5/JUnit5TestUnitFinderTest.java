@@ -40,6 +40,12 @@ public class JUnit5TestUnitFinderTest {
     }
 
     @Test
+    void testClassWithSeveralMethods() {
+        assertThat(new JUnit5TestUnitFinder().findTestUnits(
+                TestClassWithTwoTestMethods.class)).hasSize(2);
+    }
+
+    @Test
     public void testTestClassWithParameterizedTestAnnotation() {
         assertThat(new JUnit5TestUnitFinder().findTestUnits(TestClassWithParameterizedTestAnnotation.class)).hasSize(1);
     }
