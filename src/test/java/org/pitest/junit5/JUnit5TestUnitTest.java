@@ -18,8 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
+import org.pitest.junit5.repository.TestClassWithAbortingTest;
+import org.pitest.junit5.repository.TestClassWithFailingTest;
 import org.pitest.junit5.repository.TestClassWithInheritedTestMethod;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation;
@@ -104,6 +107,26 @@ public class JUnit5TestUnitTest {
         assertThat(resultCollector.getStarted()).hasSize(1);
         assertThat(resultCollector.getEnded()).hasSize(1);
     }
+
+    @Test
+    public void testTestClassWithFailingTest() {
+        TestResultCollector resultCollector = findTestsIn(TestClassWithFailingTest.class);
+
+        assertThat(resultCollector.getSkipped()).isEmpty();
+        assertThat(resultCollector.getStarted()).hasSize(1);
+        assertThat(resultCollector.getEnded()).hasSize(1);
+        assertThat(resultCollector.getFailure()).isPresent();
+    }
+
+    @Test
+    public void testTestClassWithAbortingTest() {
+        TestResultCollector resultCollector = findTestsIn(TestClassWithAbortingTest.class);
+
+        assertThat(resultCollector.getSkipped()).isEmpty();
+        assertThat(resultCollector.getStarted()).hasSize(1);
+        assertThat(resultCollector.getEnded()).hasSize(1);
+        assertThat(resultCollector.getFailure()).isEmpty();
+    }
     
     private TestResultCollector findTestsIn(Class<?> clazz) {
       TestResultCollector resultCollector = new TestResultCollector();
@@ -118,9 +141,11 @@ public class JUnit5TestUnitTest {
       private final List<Description> skipped = new ArrayList<>();
       private final List<Description> started = new ArrayList<>();
       private final List<Description> ended = new ArrayList<>();
+      private volatile Throwable failure;
 
       @Override
       public void notifyEnd(Description description, Throwable t) {
+          this.failure = t;
           notifyEnd(description);
       }
 
@@ -154,6 +179,10 @@ public class JUnit5TestUnitTest {
 
       public List<Description> getEnded() {
           return ended;
+      }
+
+      public Optional<Throwable> getFailure() {
+          return Optional.ofNullable(failure);
       }
 
   }

@@ -78,7 +78,11 @@ public class JUnit5TestUnit extends AbstractTestUnit {
                         if (testSource instanceof MethodSource) {
                             Optional<Throwable> throwable = testExecutionResult.getThrowable();
 
-                            if (throwable.isPresent()) {
+                            if (TestExecutionResult.Status.ABORTED == testExecutionResult.getStatus()) {
+                                // abort treated as success
+                                // see: https://junit.org/junit5/docs/5.0.0/api/org/junit/jupiter/api/Assumptions.html
+                                resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass));
+                            } else if (throwable.isPresent()) {
                                 resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass), throwable.get());
                             } else {
                                 resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass));
