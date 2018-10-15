@@ -26,12 +26,12 @@ e.g for maven
       <plugin>
         <groupId>org.pitest</groupId>
         <artifactId>pitest-maven</artifactId>
-        <version>1.3.0</version>
+        <version>1.4.2</version>
         <dependencies>
           <dependency>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-junit5-plugin</artifactId>
-            <version>0.3</version>
+            <version>0.7</version>
           </dependency>
         </dependencies>
 
@@ -52,14 +52,14 @@ buildscript {
    configurations.maybeCreate("pitest")
    dependencies {
        classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.3.0'
-       pitest 'org.pitest:pitest-junit5-plugin:0.3'
+       pitest 'org.pitest:pitest-junit5-plugin:0.7'
    }
 }
 
 apply plugin: "info.solidsoft.pitest"
 
 pitest {
-    pitestVersion = "1.3.0"
+    pitestVersion = "1.4.2"
     testPlugin = "junit5"
     targetClasses = ['our.base.package.*']  // by default "${project.group}.*"
 }
