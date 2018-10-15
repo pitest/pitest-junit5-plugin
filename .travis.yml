@@ -1,0 +1,29 @@
+sudo: false
+
+language: java
+
+# Get latest install-jdk.sh script
+before_install:
+  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
+
+matrix:
+  include:
+    - jdk: openjdk8
+    
+    - jdk: oraclejdk8
+    
+    - jdk: oraclejdk9
+    
+    - env: JDK='JDK9' 
+      install: . ./install-jdk.sh -F 9 -L GPL
+    
+    - env: JDK='JDK 10'
+      install: . ./install-jdk.sh -F 10 -L GPL
+    
+    # Java 11 
+    - env: JDK='JDK 11' 
+      install: . ./install-jdk.sh -F 11 -L BCL 
+
+script:
+  - java -version
+  - mvn clean install 
