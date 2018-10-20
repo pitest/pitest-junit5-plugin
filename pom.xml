@@ -19,7 +19,7 @@
 		<assertj.version>3.11.1</assertj.version>
 		<junit.platform.version>1.3.1</junit.platform.version>
 		<junit.version>5.3.1</junit.version>
-		<mockito.version>2.7.6</mockito.version>
+		<mockito.version>2.23.0</mockito.version>
 		<pitest.version>1.4.3</pitest.version>
 	</properties>
 
@@ -106,12 +106,25 @@
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
 			<version>${junit.version}</version>
-			<scope>test</scope>
 		</dependency>
+
+		<!-- Test dependencies: -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-params</artifactId>
 			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>${mockito.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

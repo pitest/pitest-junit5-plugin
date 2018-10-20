@@ -22,11 +22,11 @@ import org.junit.jupiter.params.provider.ValueSource;
  * @author Tobias Stadler
  */
 public class TestClassWithParameterizedTestAnnotation {
-    
+
     @ParameterizedTest
     @ValueSource(strings = {"foo"})
     public void parameterizedTest(String string) {
         
     }
-    
+
 }

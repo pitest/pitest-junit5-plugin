@@ -14,11 +14,6 @@
  */
 package org.pitest.junit5;
 
-import java.util.List;
-import java.util.Set;
-
-import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.Launcher;
@@ -27,6 +22,12 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.TestUnitFinder;
+
+import java.util.List;
+import java.util.Set;
+
+import static java.util.Collections.emptyList;
+import static java.util.stream.Collectors.toList;
 
 /**
  *
