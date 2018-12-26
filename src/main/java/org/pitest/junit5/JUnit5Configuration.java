@@ -27,12 +27,18 @@ import org.pitest.testapi.TestUnitFinder;
  */
 public class JUnit5Configuration implements Configuration {
 
-    public JUnit5Configuration() {
+    private final boolean useDynamicTests;
+
+    public JUnit5Configuration(boolean useDynamicTests) {
+        this.useDynamicTests = useDynamicTests;
     }
 
     @Override
     public TestUnitFinder testUnitFinder() {
-        return new JUnit5TestUnitFinder();
+        if (useDynamicTests)
+            return new JUnit5DynamicTestUnitFinder();
+        else
+            return new JUnit5TestUnitFinder();
     }
 
     @Override

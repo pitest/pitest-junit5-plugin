@@ -15,23 +15,24 @@
 package org.pitest.junit5;
 
 import java.util.Collection;
+
 import org.pitest.classinfo.ClassByteArraySource;
 import org.pitest.testapi.Configuration;
 import org.pitest.testapi.TestGroupConfig;
 import org.pitest.testapi.TestPluginFactory;
 
 /**
- *
  * @author Tobias Stadler
  */
 public class JUnit5TestPluginFactory implements TestPluginFactory {
 
     @Override
-    public Configuration createTestFrameworkConfiguration(TestGroupConfig config, 
-        ClassByteArraySource source, 
-        Collection<String> excludedRunners,
-        Collection<String> notYetSupported) {
-        return new JUnit5Configuration();
+    public Configuration createTestFrameworkConfiguration(
+            TestGroupConfig config,
+            ClassByteArraySource source,
+            Collection<String> excludedRunners,
+            Collection<String> notYetSupported) {
+        return new JUnit5Configuration(config.getIncludedGroups().contains("@dynamic-tests"));
     }
 
     @Override
@@ -41,7 +42,7 @@ public class JUnit5TestPluginFactory implements TestPluginFactory {
 
     @Override
     public String name() {
-      return "junit5";
+        return "junit5";
     }
 
 
