@@ -6,9 +6,7 @@ Adds support to pitest for JUnit 5 and the Jupiter api.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin)
 
-* 0.7 requires pitest 1.4.0 or above
-* 0.6 requires pitest 1.4.0 or above
-* 0.5 requires pitest 1.4.0 or above
+* > 0.5 requires pitest 1.4.0 or above
 * 0.4 requires pitest 1.3.2 or above
 * 0.3 requires pitest 1.3.0 or 1.3.1
 * 0.2 requires pitest 1.2.5 
@@ -19,30 +17,27 @@ The plugin has been built against JUnit platform 1.2.0 - you may encounter issue
 
 To activate the plugin it must be placed on the classpath of the pitest tool (**not** on the classpath of the project being mutated).
 
-e.g for maven
+### Maven
 
 ```xml
     <plugins>
       <plugin>
         <groupId>org.pitest</groupId>
         <artifactId>pitest-maven</artifactId>
-        <version>1.4.2</version>
+        <version>1.4.5</version>
         <dependencies>
           <dependency>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-junit5-plugin</artifactId>
-            <version>0.7</version>
+            <version>0.8</version>
           </dependency>
         </dependencies>
-
-        <configuration>
-blah
-        </configuration>
       </plugin>
-   </pluginsugin>
+   </plugins>
 ```
+For Pitest configuration options, have a look at http://pitest.org/quickstart/maven/.
 
-or for gradle
+### Gradle
 
 ```
 buildscript {
@@ -59,7 +54,7 @@ buildscript {
 apply plugin: "info.solidsoft.pitest"
 
 pitest {
-    pitestVersion = "1.4.2"
+    pitestVersion = "1.4.5"
     testPlugin = "junit5"
     targetClasses = ['our.base.package.*']  // by default "${project.group}.*"
 }
