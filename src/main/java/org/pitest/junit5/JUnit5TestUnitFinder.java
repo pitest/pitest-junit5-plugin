@@ -14,18 +14,24 @@
  */
 package org.pitest.junit5;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+
+import org.junit.platform.commons.util.PreconditionViolationException;
+import org.junit.platform.engine.Filter;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.TagFilter;
 import org.junit.platform.launcher.TestPlan;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
+import org.pitest.testapi.TestGroupConfig;
 import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.TestUnitFinder;
 
@@ -35,11 +41,14 @@ import org.pitest.testapi.TestUnitFinder;
  */
 public class JUnit5TestUnitFinder implements TestUnitFinder {
 
+    private final TestGroupConfig testGroupConfig;
+
     private final Collection<String> includedTestMethods;
 
     private final Launcher launcher;
 
-    public JUnit5TestUnitFinder(Collection<String> includedTestMethods) {
+    public JUnit5TestUnitFinder(TestGroupConfig testGroupConfig, Collection<String> includedTestMethods) {
+        this.testGroupConfig = testGroupConfig;
         this.includedTestMethods = includedTestMethods;
         this.launcher = LauncherFactory.create();
     }
@@ -50,9 +59,25 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
             return emptyList();
         }
 
+        List<Filter> filters = new ArrayList<>(2);
+        try {
+            List<String> excludedGroups = testGroupConfig.getExcludedGroups();
+            if(excludedGroups != null && !excludedGroups.isEmpty()) {
+                filters.add(TagFilter.excludeTags(excludedGroups));
+            }
+
+            List<String> includedGroups = testGroupConfig.getIncludedGroups();
+            if(includedGroups != null && !includedGroups.isEmpty()) {
+                filters.add(TagFilter.includeTags(includedGroups));
+            }
+        } catch(PreconditionViolationException e) {
+            throw new IllegalArgumentException("Error creating tag filter", e);
+        }
+
         TestPlan testPlan = launcher.discover(LauncherDiscoveryRequestBuilder
                 .request()
                 .selectors(DiscoverySelectors.selectClass(clazz))
+                .filters(filters.toArray(new Filter[filters.size()]))
                 .build());
 
         return testPlan.getRoots()

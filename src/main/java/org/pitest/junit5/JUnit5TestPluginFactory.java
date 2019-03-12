@@ -31,7 +31,7 @@ public class JUnit5TestPluginFactory implements TestPluginFactory {
         ClassByteArraySource source, 
         Collection<String> excludedRunners,
         Collection<String> includedTestMethods) {
-        return new JUnit5Configuration(includedTestMethods);
+        return new JUnit5Configuration(config, includedTestMethods);
     }
 
     @Override
