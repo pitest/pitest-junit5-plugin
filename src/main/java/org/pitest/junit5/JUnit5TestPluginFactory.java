@@ -30,8 +30,8 @@ public class JUnit5TestPluginFactory implements TestPluginFactory {
     public Configuration createTestFrameworkConfiguration(TestGroupConfig config, 
         ClassByteArraySource source, 
         Collection<String> excludedRunners,
-        Collection<String> notYetSupported) {
-        return new JUnit5Configuration();
+        Collection<String> includedTestMethods) {
+        return new JUnit5Configuration(includedTestMethods);
     }
 
     @Override

@@ -14,6 +14,7 @@
  */
 package org.pitest.junit5;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -34,10 +35,13 @@ import org.pitest.testapi.TestUnitFinder;
  */
 public class JUnit5TestUnitFinder implements TestUnitFinder {
 
+    private final Collection<String> includedTestMethods;
+
     private final Launcher launcher;
 
-    public JUnit5TestUnitFinder() {
-        launcher = LauncherFactory.create();
+    public JUnit5TestUnitFinder(Collection<String> includedTestMethods) {
+        this.includedTestMethods = includedTestMethods;
+        this.launcher = LauncherFactory.create();
     }
 
     @Override
@@ -57,6 +61,8 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                 .flatMap(Set::stream)
                 .filter(testIdentifier -> testIdentifier.getSource().isPresent())
                 .filter(testIdentifier -> testIdentifier.getSource().get() instanceof MethodSource)
+                .filter(testIdentifier -> includedTestMethods == null || includedTestMethods.isEmpty()
+                        || includedTestMethods.contains(((MethodSource) testIdentifier.getSource().get()).getMethodName()))
                 .map(testIdentifier -> new JUnit5TestUnit(clazz, testIdentifier))
                 .collect(toList());
     }
