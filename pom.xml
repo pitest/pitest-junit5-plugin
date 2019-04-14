@@ -20,7 +20,7 @@
 		<junit.platform.version>1.4.0</junit.platform.version>
 		<junit.version>5.4.2</junit.version>
 		<mockito.version>2.7.6</mockito.version>
-		<pitest.version>1.4.6</pitest.version>
+		<pitest.version>1.4.7</pitest.version>
 	</properties>
 
 	<scm>
