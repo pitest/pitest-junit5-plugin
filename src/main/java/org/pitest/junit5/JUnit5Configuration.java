@@ -14,10 +14,12 @@
  */
 package org.pitest.junit5;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import org.pitest.help.PitHelpError;
 import org.pitest.testapi.Configuration;
+import org.pitest.testapi.TestGroupConfig;
 import org.pitest.testapi.TestSuiteFinder;
 import org.pitest.testapi.TestUnitFinder;
 
@@ -27,12 +29,18 @@ import org.pitest.testapi.TestUnitFinder;
  */
 public class JUnit5Configuration implements Configuration {
 
-    public JUnit5Configuration() {
+    private final TestGroupConfig testGroupConfig;
+
+    private final Collection<String> includedTestMethods;
+
+    public JUnit5Configuration(TestGroupConfig testGroupConfig, Collection<String> includedTestMethods) {
+        this.testGroupConfig = testGroupConfig;
+        this.includedTestMethods = includedTestMethods;
     }
 
     @Override
     public TestUnitFinder testUnitFinder() {
-        return new JUnit5TestUnitFinder();
+        return new JUnit5TestUnitFinder(testGroupConfig, includedTestMethods);
     }
 
     @Override
