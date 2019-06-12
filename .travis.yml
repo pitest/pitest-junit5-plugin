@@ -8,20 +8,25 @@ before_install:
 
 matrix:
   include:
+    # Open jdk 8
     - jdk: openjdk8
-    
+
+    # Java 8
     - jdk: oraclejdk8
     
+    # Java 9
     - jdk: oraclejdk9
-    
-    - env: JDK='JDK9' 
+
+    # Java 9
+    - env: JDK='JDK9'
       install: . ./install-jdk.sh -F 9 -L GPL
     
+    # Java 10
     - env: JDK='JDK 10'
       install: . ./install-jdk.sh -F 10 -L GPL
     
-    # Java 11 
-    - env: JDK='JDK 11' 
+    # Java 11
+    - env: JDK='JDK 11' MAVEN=3.5.4
       install: . ./install-jdk.sh -F 11 -L BCL 
 
 script:
