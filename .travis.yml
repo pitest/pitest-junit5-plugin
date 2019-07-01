@@ -15,13 +15,9 @@ matrix:
 
     # Java 8
     - jdk: oraclejdk8
-    
-    # Java 9
-    - jdk: oraclejdk9
 
     # Java 9
-    - env: JDK='JDK9'
-      install: . ./install-jdk.sh -F 9
+    - jdk: oraclejdk9
     
     # Java 10
     - env: JDK='JDK 10'
