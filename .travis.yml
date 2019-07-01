@@ -31,6 +31,9 @@ matrix:
     - env: JDK='JDK 11'
       install: . ./install-jdk.sh -F 11
 
+    # Java 12
+    - env: JDK='JDK 12'
+      install: . ./install-jdk.sh -F 12
 script:
   - java -version
   - mvn clean install 
