@@ -21,15 +21,15 @@ matrix:
 
     # Java 9
     - env: JDK='JDK9'
-      install: . ./install-jdk.sh -F 9 -L GPL
+      install: . ./install-jdk.sh -F 9
     
     # Java 10
     - env: JDK='JDK 10'
-      install: . ./install-jdk.sh -F 10 -L GPL
+      install: . ./install-jdk.sh -F 10
     
     # Java 11
     - env: JDK='JDK 11'
-      install: . ./install-jdk.sh -F 11 -L BCL 
+      install: . ./install-jdk.sh -F 11
 
 script:
   - java -version
