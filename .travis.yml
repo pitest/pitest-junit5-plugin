@@ -5,31 +5,21 @@ sudo: false
 language: java
 
 # Get latest install-jdk.sh script
-before_install:
-  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
+jdk:
+  - openjdk8
+  - oraclejdk8
+  - oraclejdk9
+  - openjdk11
+  - openjdk12
+
 
 matrix:
   include:
-    # Open jdk 8
-    - jdk: openjdk8
+    - jdk: oraclejdk10
+      before_install:
+        - rm "${JAVA_HOME}/lib/security/cacerts"
+        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
 
-    # Java 8
-    - jdk: oraclejdk8
-
-    # Java 9
-    - jdk: oraclejdk9
-    
-    # Java 10
-    - env: JDK='JDK 10'
-      install: . ./install-jdk.sh -F 10
-    
-    # Java 11
-    - env: JDK='JDK 11'
-      install: . ./install-jdk.sh -F 11
-
-    # Java 12
-    - env: JDK='JDK 12'
-      install: . ./install-jdk.sh -F 12
 script:
   - java -version
   - mvn clean install 
