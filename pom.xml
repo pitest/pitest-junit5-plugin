@@ -157,7 +157,6 @@
 					<artifactSet>
 						<includes>
 							<include>org.junit.platform:*</include>
-							<include>org.junit.jupiter:junit-jupiter-engine</include>
 						</includes>
 					</artifactSet>
 				</configuration>
