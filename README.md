@@ -17,7 +17,7 @@ The plugin has been built against JUnit platform 1.5.0 - you may encounter issue
 
 To activate the plugin it must be placed on the classpath of the pitest tool (**not** on the classpath of the project being mutated).
 
-e.g for maven
+### Maven
 
 ```xml
     <plugins>
@@ -25,7 +25,6 @@ e.g for maven
         <groupId>org.pitest</groupId>
         <artifactId>pitest-maven</artifactId>
         <version>1.4.9</version>
-
         <dependencies>
           <dependency>
             <groupId>org.pitest</groupId>
@@ -33,15 +32,12 @@ e.g for maven
             <version>0.10-SNAPSHOT</version>
           </dependency>
         </dependencies>
-
-        <configuration>
-blah
-        </configuration>
       </plugin>
    </plugins>
 ```
+For Pitest configuration options, have a look at http://pitest.org/quickstart/maven/.
 
-or for gradle
+### Gradle
 
 ```
 buildscript {
