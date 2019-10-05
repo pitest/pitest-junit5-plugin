@@ -14,6 +14,7 @@
  */
 package org.pitest.junit5;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ import org.pitest.junit5.repository.TestClassWithTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestFactoryAnnotation;
 import org.pitest.testapi.Description;
 import org.pitest.testapi.ResultCollector;
+import org.pitest.testapi.TestGroupConfig;
 
 /**
  *
@@ -130,7 +132,7 @@ public class JUnit5TestUnitTest {
     
     private TestResultCollector findTestsIn(Class<?> clazz) {
       TestResultCollector resultCollector = new TestResultCollector();
-      new JUnit5TestUnitFinder().findTestUnits(clazz)
+      new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(clazz)
       .stream()
       .forEach(testUnit -> testUnit.execute(resultCollector));
       return resultCollector;
