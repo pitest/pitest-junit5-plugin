@@ -4,7 +4,7 @@
 
 	<groupId>org.pitest</groupId>
 	<artifactId>pitest-junit5-plugin</artifactId>
-	<version>0.10</version>
+	<version>0.11-SNAPSHOT</version>
         
 	<name>pitest-junit5-plugin</name>
 	<url>http://pitest.org</url>
@@ -27,7 +27,7 @@
 		<url>https://github.com/pitest/pitest-junit5-plugin</url>
 		<connection>scm:git:git@github.com:pitest/pitest-junit5-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:pitest/pitest-junit5-plugin.git</developerConnection>
-		<tag>pitest-junit5-plugin-0.10</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<issueManagement>
