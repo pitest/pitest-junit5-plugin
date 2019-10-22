@@ -20,7 +20,7 @@
 		<junit.platform.version>1.5.0</junit.platform.version>
 		<junit.version>5.5.0</junit.version>
 		<mockito.version>2.7.6</mockito.version>
-		<pitest.version>1.4.9</pitest.version>
+		<pitest.version>1.4.10</pitest.version>
 	</properties>
 
 	<scm>
@@ -100,7 +100,8 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>${junit.version}</version>
+            <version>${junit.version}</version>
+            <scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.assertj</groupId>
