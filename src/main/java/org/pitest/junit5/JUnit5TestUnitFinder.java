@@ -84,8 +84,11 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                 .stream()
                 .map(testPlan::getDescendants)
                 .flatMap(Set::stream)
-                .filter(testIdentifier -> testIdentifier.getSource().isPresent() && testIdentifier.getSource().get() instanceof MethodSource && (includedTestMethods == null || includedTestMethods.isEmpty()
-                        || includedTestMethods.contains(((MethodSource) testIdentifier.getSource().get()).getMethodName())))
+                .filter(testIdentifier -> {
+                    boolean isMethodSource = testIdentifier.getSource().isPresent() && testIdentifier.getSource().get() instanceof MethodSource;
+                    return (!testIdentifier.isContainer() || isMethodSource) && (includedTestMethods == null || includedTestMethods.isEmpty() || (isMethodSource &&
+                            includedTestMethods.contains(((MethodSource) testIdentifier.getSource().get()).getMethodName())));
+                })
                 .map(testIdentifier -> new JUnit5TestUnit(clazz, testIdentifier))
                 .collect(toList());
     }
