@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
+import org.junit.platform.engine.support.descriptor.FileSource;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
@@ -57,7 +58,7 @@ public class JUnit5TestUnit extends AbstractTestUnit {
                 @Override
                 public void executionSkipped(TestIdentifier testIdentifier, String reason) {
                     testIdentifier.getSource().ifPresent(testSource -> {
-                        if (testSource instanceof MethodSource) {
+                        if (testSource instanceof MethodSource || testSource instanceof FileSource) {
                             resultCollector.notifySkipped(new Description(testIdentifier.getDisplayName(), testClass));
                         }
                     });
@@ -66,7 +67,7 @@ public class JUnit5TestUnit extends AbstractTestUnit {
                 @Override
                 public void executionStarted(TestIdentifier testIdentifier) {
                     testIdentifier.getSource().ifPresent(testSource -> {
-                        if (testSource instanceof MethodSource) {
+                        if (testSource instanceof MethodSource || testSource instanceof FileSource) {
                             resultCollector.notifyStart(new Description(testIdentifier.getDisplayName(), testClass));
                         }
                     });
@@ -75,7 +76,7 @@ public class JUnit5TestUnit extends AbstractTestUnit {
                 @Override
                 public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
                     testIdentifier.getSource().ifPresent(testSource -> {
-                        if (testSource instanceof MethodSource) {
+                        if (testSource instanceof MethodSource || testSource instanceof FileSource) {
                             Optional<Throwable> throwable = testExecutionResult.getThrowable();
 
                             if (TestExecutionResult.Status.ABORTED == testExecutionResult.getStatus()) {
