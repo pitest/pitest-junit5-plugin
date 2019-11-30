@@ -46,8 +46,8 @@ buildscript {
    }
    configurations.maybeCreate("pitest")
    dependencies {
-       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.5.0'
-       pitest 'org.pitest:pitest-junit5-plugin:0.10-SNAPSHOT'
+       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.4.5'
+       pitest 'org.pitest:pitest-junit5-plugin:0.10'
    }
 }
 
