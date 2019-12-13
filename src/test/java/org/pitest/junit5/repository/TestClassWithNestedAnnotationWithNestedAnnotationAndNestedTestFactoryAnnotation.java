@@ -34,7 +34,7 @@ public class TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFacto
 
             @TestFactory
             public Collection<DynamicTest> testFactory() {
-        		return Collections.singleton(DynamicTest.dynamicTest("dynamic test", () -> {}));
+                return Collections.emptyList();
             }
 
         }
