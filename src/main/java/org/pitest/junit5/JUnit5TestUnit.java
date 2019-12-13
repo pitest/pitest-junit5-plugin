@@ -18,7 +18,6 @@ import java.util.Optional;
 
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
-import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
 import org.junit.platform.launcher.TestExecutionListener;
@@ -56,26 +55,21 @@ public class JUnit5TestUnit extends AbstractTestUnit {
             launcher.registerTestExecutionListeners(new TestExecutionListener() {
                 @Override
                 public void executionSkipped(TestIdentifier testIdentifier, String reason) {
-                    testIdentifier.getSource().ifPresent(testSource -> {
-                        if (testSource instanceof MethodSource) {
+                        if (testIdentifier.isTest()) {
                             resultCollector.notifySkipped(new Description(testIdentifier.getDisplayName(), testClass));
                         }
-                    });
                 }
 
                 @Override
                 public void executionStarted(TestIdentifier testIdentifier) {
-                    testIdentifier.getSource().ifPresent(testSource -> {
-                        if (testSource instanceof MethodSource) {
+                        if (testIdentifier.isTest()) {
                             resultCollector.notifyStart(new Description(testIdentifier.getDisplayName(), testClass));
                         }
-                    });
                 }
 
                 @Override
                 public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
-                    testIdentifier.getSource().ifPresent(testSource -> {
-                        if (testSource instanceof MethodSource) {
+                        if (testIdentifier.isTest()) {
                             Optional<Throwable> throwable = testExecutionResult.getThrowable();
 
                             if (TestExecutionResult.Status.ABORTED == testExecutionResult.getStatus()) {
@@ -88,7 +82,6 @@ public class JUnit5TestUnit extends AbstractTestUnit {
                                 resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass));
                             }
                         }
-                    });
                 }
 
             });
