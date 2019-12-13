@@ -27,7 +27,7 @@ public class TestClassWithTestFactoryAnnotation {
 
     @TestFactory
     public Collection<DynamicTest> testFactory() {
-        return Collections.emptyList();
+		return Collections.singleton(DynamicTest.dynamicTest("dynamic test", () -> {}));
     }
 
 }

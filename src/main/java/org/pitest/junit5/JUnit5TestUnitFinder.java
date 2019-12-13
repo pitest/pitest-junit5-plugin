@@ -17,9 +17,9 @@ package org.pitest.junit5;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 
 import org.junit.platform.commons.util.PreconditionViolationException;
@@ -28,9 +28,10 @@ import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.TagFilter;
-import org.junit.platform.launcher.TestPlan;
+import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
+import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.pitest.testapi.TestGroupConfig;
 import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.TestUnitFinder;
@@ -74,22 +75,39 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
             throw new IllegalArgumentException("Error creating tag filter", e);
         }
 
-        TestPlan testPlan = launcher.discover(LauncherDiscoveryRequestBuilder
+		TestIdentifierCollector listener = new TestIdentifierCollector();
+		launcher.execute(LauncherDiscoveryRequestBuilder
                 .request()
                 .selectors(DiscoverySelectors.selectClass(clazz))
                 .filters(filters.toArray(new Filter[filters.size()]))
-                .build());
+                .build(), listener);
 
-        return testPlan.getRoots()
+        return listener.getIdentifiers()
                 .stream()
-                .map(testPlan::getDescendants)
-                .flatMap(Set::stream)
-                .filter(testIdentifier -> testIdentifier.getSource().isPresent())
-                .filter(testIdentifier -> testIdentifier.getSource().get() instanceof MethodSource)
-                .filter(testIdentifier -> includedTestMethods == null || includedTestMethods.isEmpty()
-                        || includedTestMethods.contains(((MethodSource) testIdentifier.getSource().get()).getMethodName()))
                 .map(testIdentifier -> new JUnit5TestUnit(clazz, testIdentifier))
                 .collect(toList());
+    }
+
+	private class TestIdentifierCollector extends SummaryGeneratingListener {
+		private final List<TestIdentifier> identifiers = new ArrayList<>();
+
+		List<TestIdentifier> getIdentifiers() {
+			return unmodifiableList(identifiers);
+		}
+
+		@Override
+		public void executionStarted(TestIdentifier testIdentifier) {
+			if (testIdentifier.isTest()) {
+				// filter out testMethods
+				if (includedTestMethods != null && !includedTestMethods.isEmpty()
+						&& testIdentifier.getSource().isPresent()
+						&& testIdentifier.getSource().get() instanceof MethodSource
+						&& !includedTestMethods.contains(((MethodSource)testIdentifier.getSource().get()).getMethodName())) {
+					return;
+				}
+ 				identifiers.add(testIdentifier);
+			}
+		}
     }
 
 }
