@@ -18,6 +18,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
+import org.pitest.junit5.cucumber.RunCucumberTest;
 import org.pitest.junit5.repository.TestClassWithIncludedTestMethod;
 import org.pitest.junit5.repository.TestClassWithInheritedTestMethod;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestAnnotation;
@@ -129,4 +130,10 @@ public class JUnit5TestUnitFinderTest {
     public void testTestClassWithIncludedTag() {
         assertThat(new JUnit5TestUnitFinder(new TestGroupConfig().withIncludedGroups("included"), emptyList()).findTestUnits(TestClassWithTags.class)).hasSize(1);
     }
+
+    @Test
+    public void testRunCucumberTest() {
+        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(RunCucumberTest.class)).hasSize(1);
+    }
+
 }
