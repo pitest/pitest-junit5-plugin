@@ -6,7 +6,7 @@ Adds support to pitest for JUnit 5 and the Jupiter api.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin)
 
-* 0.5-0.10 requires pitest 1.4.0 or above
+* 0.5-0.11 requires pitest 1.4.0 or above
 * 0.4 requires pitest 1.3.2 or above
 * 0.3 requires pitest 1.3.0 or 1.3.1
 * 0.2 requires pitest 1.2.5 
