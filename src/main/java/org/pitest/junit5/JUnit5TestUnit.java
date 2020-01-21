@@ -39,7 +39,7 @@ public class JUnit5TestUnit extends AbstractTestUnit {
     private final TestIdentifier testIdentifier;
 
     public JUnit5TestUnit(Class<?> testClass, TestIdentifier testIdentifier) {
-        super(new Description(testIdentifier.getDisplayName(), testClass));
+        super(new Description(testIdentifier.getUniqueId(), testClass));
         this.testClass = testClass;
         this.testIdentifier = testIdentifier;
     }
@@ -56,14 +56,14 @@ public class JUnit5TestUnit extends AbstractTestUnit {
                 @Override
                 public void executionSkipped(TestIdentifier testIdentifier, String reason) {
                         if (testIdentifier.isTest()) {
-                            resultCollector.notifySkipped(new Description(testIdentifier.getDisplayName(), testClass));
+                            resultCollector.notifySkipped(new Description(testIdentifier.getUniqueId(), testClass));
                         }
                 }
 
                 @Override
                 public void executionStarted(TestIdentifier testIdentifier) {
                         if (testIdentifier.isTest()) {
-                            resultCollector.notifyStart(new Description(testIdentifier.getDisplayName(), testClass));
+                            resultCollector.notifyStart(new Description(testIdentifier.getUniqueId(), testClass));
                         }
                 }
 
@@ -75,11 +75,11 @@ public class JUnit5TestUnit extends AbstractTestUnit {
                             if (TestExecutionResult.Status.ABORTED == testExecutionResult.getStatus()) {
                                 // abort treated as success
                                 // see: https://junit.org/junit5/docs/5.0.0/api/org/junit/jupiter/api/Assumptions.html
-                                resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass));
+                                resultCollector.notifyEnd(new Description(testIdentifier.getUniqueId(), testClass));
                             } else if (throwable.isPresent()) {
-                                resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass), throwable.get());
+                                resultCollector.notifyEnd(new Description(testIdentifier.getUniqueId(), testClass), throwable.get());
                             } else {
-                                resultCollector.notifyEnd(new Description(testIdentifier.getDisplayName(), testClass));
+                                resultCollector.notifyEnd(new Description(testIdentifier.getUniqueId(), testClass));
                             }
                         }
                 }
