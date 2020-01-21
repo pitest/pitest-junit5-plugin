@@ -21,7 +21,7 @@
 		<junit.version>5.5.0</junit.version>
 		<mockito.version>2.7.6</mockito.version>
 		<pitest.version>1.4.10</pitest.version>
-		<cucumber.version>5.0.0-RC2</cucumber.version>
+		<cucumber.version>5.0.0</cucumber.version>
 	</properties>
 
 	<scm>
