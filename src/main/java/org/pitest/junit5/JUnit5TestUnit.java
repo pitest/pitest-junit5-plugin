@@ -45,11 +45,16 @@ public class JUnit5TestUnit extends AbstractTestUnit {
     public void execute(ResultCollector resultCollector) {
         Launcher launcher = LauncherFactory.create();
         UniqueId uniqueId = UniqueId.parse(testIdentifier.getUniqueId());
+        Optional<UniqueId> parentIdOptional = testIdentifier.getParentId().map(UniqueId::parse);
         LauncherDiscoveryRequest launcherDiscoveryRequest = LauncherDiscoveryRequestBuilder
                 .request()
                 .selectors(DiscoverySelectors.selectUniqueId(uniqueId))
                 .filters((PostDiscoveryFilter) testDescriptor -> FilterResult.includedIf(
-                        uniqueId.equals(testDescriptor.getUniqueId())))
+                        uniqueId.equals(testDescriptor.getUniqueId()) ||
+                                testDescriptor.mayRegisterTests() &&
+                                        parentIdOptional
+                                                .map(testDescriptor.getUniqueId()::equals)
+                                                .orElse(false)))
                 .build();
 
             launcher.registerTestExecutionListeners(new TestExecutionListener() {
