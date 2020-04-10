@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.pitest.junit5.repository.TestClassWithAbortingTest;
@@ -35,7 +34,6 @@ import org.pitest.junit5.repository.TestClassWithTestFactoryAnnotation;
 import org.pitest.testapi.Description;
 import org.pitest.testapi.ResultCollector;
 import org.pitest.testapi.TestGroupConfig;
-import org.pitest.testapi.TestUnit;
 
 /**
  *
@@ -131,13 +129,13 @@ public class JUnit5TestUnitTest {
         assertThat(resultCollector.getEnded()).hasSize(1);
         assertThat(resultCollector.getFailure()).isEmpty();
     }
-
+    
     private TestResultCollector findTestsIn(Class<?> clazz) {
-        TestResultCollector resultCollector = new TestResultCollector();
-        new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(clazz)
-                .stream()
-                .forEach(testUnit -> testUnit.execute(resultCollector));
-        return resultCollector;
+      TestResultCollector resultCollector = new TestResultCollector();
+      new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(clazz)
+      .stream()
+      .forEach(testUnit -> testUnit.execute(resultCollector));
+      return resultCollector;
     }
 
     private static class TestResultCollector implements ResultCollector {
