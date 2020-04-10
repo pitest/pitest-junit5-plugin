@@ -16,12 +16,9 @@ package org.pitest.junit5;
 
 import java.util.Optional;
 
-import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.engine.*;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
-import org.junit.platform.launcher.Launcher;
-import org.junit.platform.launcher.LauncherDiscoveryRequest;
-import org.junit.platform.launcher.TestExecutionListener;
-import org.junit.platform.launcher.TestIdentifier;
+import org.junit.platform.launcher.*;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.pitest.testapi.AbstractTestUnit;
@@ -47,9 +44,12 @@ public class JUnit5TestUnit extends AbstractTestUnit {
     @Override
     public void execute(ResultCollector resultCollector) {
         Launcher launcher = LauncherFactory.create();
+        UniqueId uniqueId = UniqueId.parse(testIdentifier.getUniqueId());
         LauncherDiscoveryRequest launcherDiscoveryRequest = LauncherDiscoveryRequestBuilder
                 .request()
-                .selectors(DiscoverySelectors.selectUniqueId(testIdentifier.getUniqueId()))
+                .selectors(DiscoverySelectors.selectUniqueId(uniqueId))
+                .filters((PostDiscoveryFilter) testDescriptor -> FilterResult.includedIf(
+                        uniqueId.equals(testDescriptor.getUniqueId())))
                 .build();
 
             launcher.registerTestExecutionListeners(new TestExecutionListener() {
