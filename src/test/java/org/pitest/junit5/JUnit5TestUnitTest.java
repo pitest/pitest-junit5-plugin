@@ -131,14 +131,13 @@ public class JUnit5TestUnitTest {
         assertThat(resultCollector.getEnded()).hasSize(1);
         assertThat(resultCollector.getFailure()).isEmpty();
     }
-    
-    private TestResultCollector findTestsIn(Class<?> clazz) {
-      TestResultCollector resultCollector = new TestResultCollector();
-      Stream<TestUnit> stream = new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(clazz)
-      .stream();
 
-      stream.forEach(testUnit -> testUnit.execute(resultCollector));
-      return resultCollector;
+    private TestResultCollector findTestsIn(Class<?> clazz) {
+        TestResultCollector resultCollector = new TestResultCollector();
+        new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(clazz)
+                .stream()
+                .forEach(testUnit -> testUnit.execute(resultCollector));
+        return resultCollector;
     }
 
     private static class TestResultCollector implements ResultCollector {
