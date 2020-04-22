@@ -40,26 +40,19 @@ For Pitest configuration options, have a look at http://pitest.org/quickstart/ma
 ### Gradle
 
 ```
-buildscript {
-   repositories {
-       mavenCentral()
-   }
-   configurations.maybeCreate("pitest")
-   dependencies {
-       classpath 'info.solidsoft.gradle.pitest:gradle-pitest-plugin:1.4.5'
-       pitest 'org.pitest:pitest-junit5-plugin:0.10'
-   }
+plugins {
+    id 'java'
+    id 'info.solidsoft.pitest' version '1.4.9'
 }
-
-apply plugin: "info.solidsoft.pitest"
 
 pitest {
-    pitestVersion = "1.4.9"
-    testPlugin = "junit5"
-    targetClasses = ['our.base.package.*']  // by default "${project.group}.*"
+    //adds dependency to org.pitest:pitest-junit5-plugin and sets "testPlugin" to "junit5"
+    junit5PluginVersion = '0.12'
+    // ...
 }
 ```
-See [gradle-pitest-plugin documentation](http://gradle-pitest-plugin.solidsoft.info/) for more configuration options.
+
+See [gradle-pitest-plugin documentation](https://github.com/szpak/gradle-pitest-plugin#pit-test-plugins-support) for more configuration options.
 
 ## About
 
