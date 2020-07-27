@@ -29,7 +29,7 @@ To activate the plugin it must be placed on the classpath of the pitest tool (**
           <dependency>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-junit5-plugin</artifactId>
-            <version>0.10-SNAPSHOT</version>
+            <version>0.12-SNAPSHOT</version>
           </dependency>
         </dependencies>
       </plugin>
