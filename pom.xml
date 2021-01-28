@@ -4,7 +4,7 @@
 
 	<groupId>org.pitest</groupId>
 	<artifactId>pitest-junit5-plugin</artifactId>
-	<version>0.13-SNAPSHOT</version>
+	<version>0.13.3-SNAPSHOT</version>
         
 	<name>pitest-junit5-plugin</name>
 	<url>http://pitest.org</url>
@@ -17,8 +17,8 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<assertj.version>3.14.0</assertj.version>
-		<junit.platform.version>1.6.0</junit.platform.version>
-		<junit.version>5.6.1</junit.version>
+		<junit.platform.version>1.7.0</junit.platform.version>
+		<junit.version>5.7.0</junit.version>
 		<mockito.version>2.7.6</mockito.version>
 		<pitest.version>1.4.11</pitest.version>
 		<cucumber.version>5.0.0</cucumber.version>
