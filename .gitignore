@@ -1,6 +1,7 @@
 ### Maven ###
 dependency-reduced-pom.xml
 /target/
+.flattened-pom.xml
 
 ### STS ###
 .apt_generated
