@@ -29,8 +29,8 @@
 
 	<scm>
 		<url>https://github.com/pitest/pitest-junit5-plugin</url>
-		<connection>scm:git:git@github.com:pitest/pitest-junit5-plugin.git</connection>
-		<developerConnection>scm:git:git@github.com:pitest/pitest-junit5-plugin.git</developerConnection>
+		<!-- must use https url rather than git one for tagging to work from github actions -->
+		<developerConnection>scm:git:https://github.com/pitest/pitest-junit5-plugin.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -132,7 +132,6 @@
 							</execution>
 						</executions>
 					</plugin>
-
 				</plugins>
 			</build>
 		</profile>
