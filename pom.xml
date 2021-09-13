@@ -20,8 +20,8 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<assertj.version>3.14.0</assertj.version>
-		<junit.platform.version>1.7.0</junit.platform.version>
-		<junit.version>5.7.0</junit.version>
+		<junit.platform.version>1.8.0</junit.platform.version>
+		<junit.version>5.8.0</junit.version>
 		<mockito.version>2.7.6</mockito.version>
 		<pitest.version>1.4.11</pitest.version>
 		<cucumber.version>5.0.0</cucumber.version>
