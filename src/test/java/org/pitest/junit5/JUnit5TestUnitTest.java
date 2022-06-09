@@ -23,6 +23,8 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.pitest.junit5.repository.TestClassWithAbortingTest;
+import org.pitest.junit5.repository.TestClassWithBeforeAll;
+import org.pitest.junit5.repository.TestClassWithFailingBeforeAll;
 import org.pitest.junit5.repository.TestClassWithFailingTest;
 import org.pitest.junit5.repository.TestClassWithInheritedTestMethod;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestAnnotation;
@@ -39,10 +41,10 @@ import org.pitest.testapi.TestGroupConfig;
  *
  * @author tobias
  */
-public class JUnit5TestUnitTest {
+class JUnit5TestUnitTest {
 
     @Test
-    public void testTestClassWithTestAnnotation() {
+    void testTestClassWithTestAnnotation() {
         TestResultCollector resultCollector = findTestsIn(TestClassWithTestAnnotation.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
@@ -51,7 +53,7 @@ public class JUnit5TestUnitTest {
     }
 
     @Test
-    public void test3TestClassWithTestFactoryAnnotation() {
+    void test3TestClassWithTestFactoryAnnotation() {
         TestResultCollector resultCollector = findTestsIn(TestClassWithTestFactoryAnnotation.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
@@ -60,7 +62,7 @@ public class JUnit5TestUnitTest {
     }
 
     @Test
-    public void testTestClassWithNestedAnnotationAndNestedTestAnnotation() {
+    void testTestClassWithNestedAnnotationAndNestedTestAnnotation() {
         TestResultCollector resultCollector = 
         findTestsIn(TestClassWithNestedAnnotationAndNestedTestAnnotation.class);
 
@@ -71,7 +73,7 @@ public class JUnit5TestUnitTest {
 
 
     @Test
-    public void testTestClassWithNestedAnnotationAndNestedTestFactoryAnnotation() {
+    void testTestClassWithNestedAnnotationAndNestedTestFactoryAnnotation() {
         TestResultCollector resultCollector =
         findTestsIn(TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.class);
 
@@ -81,7 +83,7 @@ public class JUnit5TestUnitTest {
     }
 
     @Test
-    public void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation() {
+    void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation() {
         TestResultCollector resultCollector = 
         findTestsIn(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.class);
      
@@ -91,7 +93,7 @@ public class JUnit5TestUnitTest {
     }
 
     @Test
-    public void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation() {
+    void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation() {
         TestResultCollector resultCollector = 
         findTestsIn(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.class);
 
@@ -101,7 +103,7 @@ public class JUnit5TestUnitTest {
     }
 
     @Test
-    public void testTestClassWithInheritedTestMethod() {
+    void testTestClassWithInheritedTestMethod() {
         TestResultCollector resultCollector =
         findTestsIn(TestClassWithInheritedTestMethod.class);
 
@@ -111,7 +113,7 @@ public class JUnit5TestUnitTest {
     }
 
     @Test
-    public void testTestClassWithFailingTest() {
+    void testTestClassWithFailingTest() {
         TestResultCollector resultCollector = findTestsIn(TestClassWithFailingTest.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
@@ -121,7 +123,7 @@ public class JUnit5TestUnitTest {
     }
 
     @Test
-    public void testTestClassWithAbortingTest() {
+    void testTestClassWithAbortingTest() {
         TestResultCollector resultCollector = findTestsIn(TestClassWithAbortingTest.class);
 
         assertThat(resultCollector.getSkipped()).isEmpty();
@@ -129,6 +131,25 @@ public class JUnit5TestUnitTest {
         assertThat(resultCollector.getEnded()).hasSize(1);
         assertThat(resultCollector.getFailure()).isEmpty();
     }
+
+    @Test
+    void testRunsBeforeAlls() {
+        TestResultCollector resultCollector = findTestsIn(TestClassWithBeforeAll.class);
+
+        assertThat(resultCollector.getSkipped()).isEmpty();
+        assertThat(resultCollector.getStarted()).hasSize(2);
+        assertThat(resultCollector.getFailure()).isEmpty();
+    }
+
+    @Test
+    void testFailsWhenBeforeAllFails() {
+        TestResultCollector resultCollector = findTestsIn(TestClassWithFailingBeforeAll.class);
+
+        assertThat(resultCollector.getSkipped()).isEmpty();
+        assertThat(resultCollector.getStarted()).hasSize(0);
+        assertThat(resultCollector.getFailure()).isPresent();
+    }
+
     
     private TestResultCollector findTestsIn(Class<?> clazz) {
       TestResultCollector resultCollector = new TestResultCollector();

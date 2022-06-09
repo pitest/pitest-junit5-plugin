@@ -69,9 +69,8 @@ public class JUnit5TestUnit extends AbstractTestUnit {
 
                 @Override
                 public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+                    Optional<Throwable> throwable = testExecutionResult.getThrowable();
                         if (testIdentifier.isTest()) {
-                            Optional<Throwable> throwable = testExecutionResult.getThrowable();
-
                             if (TestExecutionResult.Status.ABORTED == testExecutionResult.getStatus()) {
                                 // abort treated as success
                                 // see: https://junit.org/junit5/docs/5.0.0/api/org/junit/jupiter/api/Assumptions.html
@@ -80,6 +79,11 @@ public class JUnit5TestUnit extends AbstractTestUnit {
                                 resultCollector.notifyEnd(new Description(testIdentifier.getUniqueId(), testClass), throwable.get());
                             } else {
                                 resultCollector.notifyEnd(new Description(testIdentifier.getUniqueId(), testClass));
+                            }
+                        } else {
+                            // Classes with failing BeforeAll methods identify as containers, not tests.
+                            if (throwable.isPresent()) {
+                                resultCollector.notifyEnd(new Description(testIdentifier.getUniqueId(), testClass), throwable.get());
                             }
                         }
                 }
