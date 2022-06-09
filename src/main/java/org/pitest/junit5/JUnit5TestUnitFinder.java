@@ -24,7 +24,9 @@ import static java.util.stream.Collectors.toList;
 
 import org.junit.platform.commons.util.PreconditionViolationException;
 import org.junit.platform.engine.Filter;
+import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
+import org.junit.platform.engine.support.descriptor.ClassSource;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.TagFilter;
@@ -108,6 +110,18 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
  				identifiers.add(testIdentifier);
 			}
 		}
+
+
+        @Override
+        public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+            // Classes with failing BeforeAlls never start execution and identify as 'containers' not 'tests'
+            if (testExecutionResult.getStatus() == TestExecutionResult.Status.FAILED) {
+                if (!identifiers.contains(testIdentifier)) {
+                    identifiers.add(testIdentifier);
+                }
+            }
+        }
+
     }
 
 }
