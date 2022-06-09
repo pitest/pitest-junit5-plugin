@@ -6,6 +6,7 @@ Adds support to pitest for JUnit 5 and the Jupiter api.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin)
 
+* 0.16 requires pitest 1.4.0 or above and JUnit Platform 1.8.x (Jupiter 5.8.0)
 * 0.15 requires pitest 1.4.0 or above and JUnit Platform 1.8.x (Jupiter 5.8.0)
 * 0.5-0.14 requires pitest 1.4.0 or above and JUnit Platform 1.7.x (Jupiter 5.7.x)
 * 0.4 requires pitest 1.3.2 or above
@@ -54,6 +55,12 @@ pitest {
 ```
 
 See [gradle-pitest-plugin documentation](https://github.com/szpak/gradle-pitest-plugin#pit-test-plugins-support) for more configuration options.
+
+## Release Notes
+
+### 0.16
+
+* #64 Errors in `BeforeAll` methods do not register
 
 ## About
 
