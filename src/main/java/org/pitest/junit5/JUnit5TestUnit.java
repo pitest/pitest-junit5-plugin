@@ -26,13 +26,14 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.pitest.testapi.AbstractTestUnit;
 import org.pitest.testapi.Description;
+import org.pitest.testapi.ExecutedInDiscovery;
 import org.pitest.testapi.ResultCollector;
 
 /**
  *
  * @author Tobias Stadler
  */
-public class JUnit5TestUnit extends AbstractTestUnit {
+public class JUnit5TestUnit extends AbstractTestUnit implements ExecutedInDiscovery {
 
     private final Class<?> testClass;
 
@@ -92,4 +93,9 @@ public class JUnit5TestUnit extends AbstractTestUnit {
             launcher.execute(launcherDiscoveryRequest);
     }
 
+
+    @Override
+    public String toString() {
+        return "JUnit5TestUnit[" + testIdentifier.getUniqueId() + "]";
+    }
 }

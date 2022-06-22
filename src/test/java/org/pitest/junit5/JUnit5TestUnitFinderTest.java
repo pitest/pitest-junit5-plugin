@@ -17,10 +17,14 @@ package org.pitest.junit5;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 import org.pitest.junit5.cucumber.RunCucumberTest;
+import org.pitest.junit5.repository.TestClassWithFailingTest;
 import org.pitest.junit5.repository.TestClassWithIncludedTestMethod;
 import org.pitest.junit5.repository.TestClassWithInheritedTestMethod;
+import org.pitest.junit5.repository.TestClassWithMixedPassAndFail;
+import org.pitest.junit5.repository.TestClassWithMultiplePassingTests;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation;
@@ -34,106 +38,214 @@ import org.pitest.junit5.repository.TestClassWithTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestFactoryAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestTemplateAnnotation;
 import org.pitest.junit5.repository.TestClassWithoutAnnotations;
+import org.pitest.testapi.Description;
+import org.pitest.testapi.ExecutedInDiscovery;
+import org.pitest.testapi.NullExecutionListener;
 import org.pitest.testapi.TestGroupConfig;
+import org.pitest.testapi.TestUnit;
+import org.pitest.testapi.TestUnitExecutionListener;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- *
  * @author Tobias Stadler
  */
-public class JUnit5TestUnitFinderTest {
+class JUnit5TestUnitFinderTest {
 
-    public JUnit5TestUnitFinderTest() {
+    @Test
+    void findsAndRunsBasicJupiterTests() {
+        findsAndRunsNTests(1, TestClassWithTestAnnotation.class);
     }
 
     @Test
-    public void testTestClassWithParameterizedTestAnnotation() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithParameterizedTestAnnotation.class)).hasSize(1);
+    void findsAndRunsBasicJupiterTestsWhenMultiplePresent() {
+        findsAndRunsNTests(3, TestClassWithMultiplePassingTests.class);
     }
 
     @Test
-    public void testTestClassWithRepeatedTestAnnotation() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithRepeatedTestAnnotation.class)).hasSize(1);
+    void descriptionsOfTestsRunDuringDiscoveryMatchThoseOfDiscoveredTests() {
+        JUnit5TestUnitFinder underTest = basicConfig();
+        List<Description> runInDiscovery = run(underTest, TestClassWithMultiplePassingTests.class).started;
+        List<Description> discovered = underTest.findTestUnits(TestClassWithMultiplePassingTests.class, new NullExecutionListener())
+                .stream()
+                .map(tu -> tu.getDescription())
+                .collect(Collectors.toList());
+
+        assertThat(runInDiscovery).containsExactlyInAnyOrderElementsOf(discovered);
     }
 
     @Test
-    public void testTestClassWithTestAnnotation() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithTestAnnotation.class)).hasSize(1);
+    void discoveredTestsAreMarkedAsExecuted() {
+       JUnit5TestUnitFinder underTest = basicConfig();
+       List<TestUnit> discovered = underTest.findTestUnits(TestClassWithMultiplePassingTests.class,
+               new NullExecutionListener());
+
+        assertThat(discovered).allMatch(tu -> tu instanceof ExecutedInDiscovery);
     }
 
     @Test
-    public void testTestClassWithTestFactoryAnnotation() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithTestFactoryAnnotation.class)).hasSize(1);
+    void detectsFailingTests() {
+        findsAndRunsNTests(1, TestClassWithFailingTest.class);
+        nTestsFails(1, TestClassWithFailingTest.class);
     }
 
     @Test
-    public void testTestClassWithTestTemplateAnnotation() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithTestTemplateAnnotation.class)).hasSize(1);
+    void detectsErroringTestsWhenPassingTestsPresent() {
+        nTestsPass(2, TestClassWithMixedPassAndFail.class);
+        nTestsFails(2, TestClassWithMixedPassAndFail.class);
+    }
+
+
+    @Test
+    void findsAndRunsParameterizedTests() {
+        findsAndRunsNTests(1, TestClassWithParameterizedTestAnnotation.class);
     }
 
     @Test
-    public void testTestClassWithNestedAnnotationAndNestedTestAnnotation() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedAnnotationAndNestedTestAnnotation.class)).hasSize(1);
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedAnnotationAndNestedTestAnnotation.NestedClass.class)).isEmpty();
+    void findsAndRunsTestsWithRepeatedATestAnnotation() {
+        findsAndRunsNTests(1, TestClassWithRepeatedTestAnnotation.class);
     }
 
     @Test
-    public void testTestClassWithNestedAnnotationAndNestedTestFactoryAnnotation() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.class)).hasSize(1);
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.class)).isEmpty();
+    void findsAndRunsTestsFromTestFactoryAnnotation() {
+        findsAndRunsNTests(1, TestClassWithTestFactoryAnnotation.class);
     }
 
     @Test
-    public void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.class)).hasSize(1);
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.NestedClass.class)).isEmpty();
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.NestedClass.NestedNestedClass.class)).isEmpty();
+    void findsAndRunsTestsFromTestTemplateAnnotation() {
+        findsAndRunsNTests(1, TestClassWithTestTemplateAnnotation.class);
     }
 
     @Test
-    public void testTestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.class)).hasSize(1);
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.class)).isEmpty();
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.NestedNestedClass.class)).isEmpty();
+    void findsAndRunsTestsFromClassWithNestedAnnotationAndNestedTestAnnotation() {
+        findsAndRunsNTests(1, TestClassWithNestedAnnotationAndNestedTestAnnotation.class);
+        findsAndRunsNTests(0, TestClassWithNestedAnnotationAndNestedTestAnnotation.NestedClass.class);
     }
 
     @Test
-    public void testTestClassWithoutAnnotations() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithoutAnnotations.class)).isEmpty();
+    void findsAndRunsTestsFromClassWithNestedAnnotationAndNestedTestFactoryAnnotation() {
+        findsAndRunsNTests(1, TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.class);
+        findsAndRunsNTests(0, TestClassWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.class);
     }
 
     @Test
-    public void testTestClassWithNestedClassWithNestedAnnotationAndNestedTestAnnotation() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedClassWithNestedAnnotationAndNestedTestAnnotation.class)).isEmpty();
+    void findsAndRunsTestsWhenMultipleNesting() {
+        findsAndRunsNTests(1, TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.class);
+        findsAndRunsNTests(0, TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.NestedClass.class);
+        findsAndRunsNTests(0, TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestAnnotation.NestedClass.NestedNestedClass.class);
     }
 
     @Test
-    public void testTestClassWithNestedClassWithNestedAnnotationAndNestedTestFactoryAnnotation() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithNestedClassWithNestedAnnotationAndNestedTestFactoryAnnotation.class)).isEmpty();
+    void findsAndRunsTestsWhenMultipleNestingWithTestFactories() {
+        findsAndRunsNTests(1, TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.class);
+        findsAndRunsNTests(0, TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.class);
+        findsAndRunsNTests(0, TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation.NestedClass.NestedNestedClass.class);
     }
 
     @Test
-    public void testTestClassWithInheritedTestMethod() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(TestClassWithInheritedTestMethod.class)).hasSize(1);
+    void findsNoTestsWhenNoTestAnnotations() {
+        findsAndRunsNTests(0, TestClassWithoutAnnotations.class);
     }
 
     @Test
-    public void testTestClassWithIncludedTestMethod() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), singletonList("included")).findTestUnits(TestClassWithIncludedTestMethod.class)).hasSize(1);
+    void findsNoTestsInOuterClassWhenNestedAnnotationPresent() {
+        findsAndRunsNTests(0, TestClassWithNestedClassWithNestedAnnotationAndNestedTestAnnotation.class);
     }
 
     @Test
-    public void testTestClassWithExcludedTag() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig().withExcludedGroups("excluded"), emptyList()).findTestUnits(TestClassWithTags.class)).hasSize(3);
+    void findsNoTestsInOuterClassWhenNestedAnnotationPresentForFactory() {
+        findsAndRunsNTests(0, TestClassWithNestedClassWithNestedAnnotationAndNestedTestFactoryAnnotation.class);
     }
 
     @Test
-    public void testTestClassWithIncludedTag() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig().withIncludedGroups("included"), emptyList()).findTestUnits(TestClassWithTags.class)).hasSize(1);
+    void findsInheritedTests() {
+        findsAndRunsNTests(1, TestClassWithInheritedTestMethod.class);
     }
 
     @Test
-    public void testRunCucumberTest() {
-        assertThat(new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(RunCucumberTest.class)).hasSize(1);
+    void findsTestsIncludedByMethodName() {
+        findsAndRunsNTests(1, new JUnit5TestUnitFinder(new TestGroupConfig(), singletonList("included")), TestClassWithIncludedTestMethod.class);
     }
 
+    @Test
+    void excludesTestsByTag() {
+        findsAndRunsNTests(3, new JUnit5TestUnitFinder(new TestGroupConfig().withExcludedGroups("excluded"), emptyList()), TestClassWithTags.class);
+    }
+
+    @Test
+    void includesTestsByTag() {
+        findsAndRunsNTests(1, new JUnit5TestUnitFinder(new TestGroupConfig().withIncludedGroups("included"), emptyList()), TestClassWithTags.class);
+    }
+
+    @Test
+    void findsAndRunsCucumberTests() {
+        findsAndRunsNTests(1, RunCucumberTest.class);
+    }
+
+    private void findsAndRunsNTests(int n, Class<?> clazz) {
+        findsAndRunsNTests(n, basicConfig(), clazz);
+    }
+
+    private void findsAndRunsNTests(int n, JUnit5TestUnitFinder underTest, Class<?> clazz) {
+        RecordingListener l = run(underTest, clazz);
+        assertThat(l.started).hasSize(n);
+    }
+
+    private void nTestsPass(int n, Class<?> clazz) {
+        RecordingListener l = run(basicConfig(), clazz);
+        assertThat(l.passed).hasSize(n);
+    }
+
+    private void nTestsFails(int n, Class<?> clazz) {
+        RecordingListener l = run(basicConfig(), clazz);
+        assertThat(l.failed).hasSize(n);
+    }
+
+    private RecordingListener run(JUnit5TestUnitFinder underTest, Class<?> clazz) {
+        RecordingListener l = new RecordingListener();
+        underTest.findTestUnits(clazz, l);
+        return l;
+    }
+
+    private JUnit5TestUnitFinder basicConfig() {
+        return new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList());
+    }
+
+}
+
+class RecordingListener implements TestUnitExecutionListener {
+    List<Description> started = new ArrayList<>();
+    List<Description> failed = new ArrayList<>();
+    List<Description> passed = new ArrayList<>();
+    TestUnitExecutionListener l = new TestUnitExecutionListener() {
+        @Override
+        public void executionStarted(Description description) {
+            started.add(description);
+        }
+
+        @Override
+        public void executionFinished(Description description, boolean pass) {
+            if (pass) {
+                passed.add(description);
+            } else {
+                failed.add(description);
+            }
+        }
+    };
+
+    @Override
+    public void executionStarted(Description description) {
+        started.add(description);
+    }
+
+    @Override
+    public void executionFinished(Description description, boolean pass) {
+        if (pass) {
+            passed.add(description);
+        } else {
+            failed.add(description);
+        }
+    }
 }

@@ -26,7 +26,6 @@ import org.junit.platform.commons.util.PreconditionViolationException;
 import org.junit.platform.engine.Filter;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
-import org.junit.platform.engine.support.descriptor.ClassSource;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.TagFilter;
@@ -34,8 +33,10 @@ import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
+import org.pitest.testapi.Description;
 import org.pitest.testapi.TestGroupConfig;
 import org.pitest.testapi.TestUnit;
+import org.pitest.testapi.TestUnitExecutionListener;
 import org.pitest.testapi.TestUnitFinder;
 
 /**
@@ -57,7 +58,7 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
     }
 
     @Override
-    public List<TestUnit> findTestUnits(Class<?> clazz) {
+    public List<TestUnit> findTestUnits(Class<?> clazz, TestUnitExecutionListener executionListener) {
         if(clazz.getEnclosingClass() != null) {
             return emptyList();
         }
@@ -77,7 +78,8 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
             throw new IllegalArgumentException("Error creating tag filter", e);
         }
 
-        TestIdentifierListener listener = new TestIdentifierListener();
+        TestIdentifierListener listener = new TestIdentifierListener(clazz, executionListener);
+
         launcher.execute(LauncherDiscoveryRequestBuilder
                 .request()
                 .selectors(DiscoverySelectors.selectClass(clazz))
@@ -91,25 +93,33 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
     }
 
     private class TestIdentifierListener extends SummaryGeneratingListener {
-		private final List<TestIdentifier> identifiers = new ArrayList<>();
+        private final Class<?> testClass;
+        private final TestUnitExecutionListener l;
+        private final List<TestIdentifier> identifiers = new ArrayList<>();
 
-		List<TestIdentifier> getIdentifiers() {
-			return unmodifiableList(identifiers);
-		}
+        public TestIdentifierListener(Class<?> testClass, TestUnitExecutionListener l) {
+            this.testClass = testClass;
+            this.l = l;
+        }
 
-		@Override
-		public void executionStarted(TestIdentifier testIdentifier) {
-			if (testIdentifier.isTest()) {
-				// filter out testMethods
-				if (includedTestMethods != null && !includedTestMethods.isEmpty()
-						&& testIdentifier.getSource().isPresent()
-						&& testIdentifier.getSource().get() instanceof MethodSource
-						&& !includedTestMethods.contains(((MethodSource)testIdentifier.getSource().get()).getMethodName())) {
-					return;
-				}
- 				identifiers.add(testIdentifier);
-			}
-		}
+        List<TestIdentifier> getIdentifiers() {
+            return unmodifiableList(identifiers);
+        }
+
+        @Override
+        public void executionStarted(TestIdentifier testIdentifier) {
+            if (testIdentifier.isTest()) {
+                // filter out testMethods
+                if (includedTestMethods != null && !includedTestMethods.isEmpty()
+                        && testIdentifier.getSource().isPresent()
+                        && testIdentifier.getSource().get() instanceof MethodSource
+                        && !includedTestMethods.contains(((MethodSource)testIdentifier.getSource().get()).getMethodName())) {
+                    return;
+                }
+                l.executionStarted(new Description(testIdentifier.getUniqueId(), testClass));
+                identifiers.add(testIdentifier);
+            }
+        }
 
 
         @Override
@@ -119,6 +129,9 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                 if (!identifiers.contains(testIdentifier)) {
                     identifiers.add(testIdentifier);
                 }
+                l.executionFinished(new Description(testIdentifier.getUniqueId(), testClass), false);
+            } else if (testIdentifier.isTest()) {
+                l.executionFinished(new Description(testIdentifier.getUniqueId(), testClass), true);
             }
         }
 
