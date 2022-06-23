@@ -23,7 +23,9 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.pitest.junit5.repository.TestClassWithAbortingTest;
+import org.pitest.junit5.repository.TestClassWithAfterAll;
 import org.pitest.junit5.repository.TestClassWithBeforeAll;
+import org.pitest.junit5.repository.TestClassWithFailingAfterAll;
 import org.pitest.junit5.repository.TestClassWithFailingBeforeAll;
 import org.pitest.junit5.repository.TestClassWithFailingTest;
 import org.pitest.junit5.repository.TestClassWithInheritedTestMethod;
@@ -34,6 +36,7 @@ import org.pitest.junit5.repository.TestClassWithNestedAnnotationWithNestedAnnot
 import org.pitest.junit5.repository.TestClassWithTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestFactoryAnnotation;
 import org.pitest.testapi.Description;
+import org.pitest.testapi.NullExecutionListener;
 import org.pitest.testapi.ResultCollector;
 import org.pitest.testapi.TestGroupConfig;
 
@@ -150,10 +153,29 @@ class JUnit5TestUnitTest {
         assertThat(resultCollector.getFailure()).isPresent();
     }
 
-    
+    @Test
+    void runsAfterAlls() {
+        TestResultCollector resultCollector = findTestsIn(TestClassWithAfterAll.class);
+
+        assertThat(resultCollector.getSkipped()).isEmpty();
+        assertThat(resultCollector.getStarted()).hasSize(2);
+        assertThat(resultCollector.getFailure()).isEmpty();
+    }
+
+    @Test
+    void testFailsWhenAfterAllFails() {
+        TestResultCollector resultCollector = findTestsIn(TestClassWithFailingAfterAll.class);
+
+        assertThat(resultCollector.getSkipped()).isEmpty();
+        // We get 4 start notifications, 1 for each test and again for the container. Not clear
+        // what consequence this has.
+        //assertThat(resultCollector.getStarted()).hasSize(2);
+        assertThat(resultCollector.getFailure()).isPresent();
+    }
+
     private TestResultCollector findTestsIn(Class<?> clazz) {
       TestResultCollector resultCollector = new TestResultCollector();
-      new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(clazz)
+      new JUnit5TestUnitFinder(new TestGroupConfig(), emptyList()).findTestUnits(clazz, new NullExecutionListener())
       .stream()
       .forEach(testUnit -> testUnit.execute(resultCollector));
       return resultCollector;
