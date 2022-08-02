@@ -45,12 +45,13 @@ For Pitest configuration options, have a look at http://pitest.org/quickstart/ma
 ```
 plugins {
     id 'java'
-    id 'info.solidsoft.pitest' version '1.9.0'
+    id 'info.solidsoft.pitest' version '1.7.4'
 }
 
 pitest {
     //adds dependency to org.pitest:pitest-junit5-plugin and sets "testPlugin" to "junit5"
     junit5PluginVersion = '1.0.0'
+    pitestVersion = '1.9.0'
     // ...
 }
 ```
