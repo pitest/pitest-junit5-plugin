@@ -100,7 +100,7 @@ class JUnit5TestUnitFinderTest {
 
     @Test
     void findsAndRunsParameterizedTests() {
-        findsAndRunsNTests(1, TestClassWithParameterizedTestAnnotation.class);
+        findsAndRunsNTests(2, TestClassWithParameterizedTestAnnotation.class);
     }
 
     @Test

@@ -14,7 +14,10 @@
  */
 package org.pitest.junit5.repository;
 
+import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /**
@@ -22,11 +25,20 @@ import org.junit.jupiter.params.provider.ValueSource;
  * @author Tobias Stadler
  */
 public class TestClassWithParameterizedTestAnnotation {
-    
+
     @ParameterizedTest
     @ValueSource(strings = {"foo"})
     public void parameterizedTest(String string) {
         
     }
-    
+
+    @ParameterizedTest
+    @MethodSource("someMethod")
+    public void methodParameterizedTest(String string) {
+
+    }
+
+    static Stream<Arguments> someMethod() {
+        return Stream.of(Arguments.of("foo"));
+    }
 }
