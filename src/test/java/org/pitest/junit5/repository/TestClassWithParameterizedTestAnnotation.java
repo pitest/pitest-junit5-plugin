@@ -27,9 +27,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 public class TestClassWithParameterizedTestAnnotation {
 
     @ParameterizedTest
-    @ValueSource(strings = {"foo"})
+    @ValueSource(strings = {"hello", "goodbye"})
     public void parameterizedTest(String string) {
-        
+
     }
 
     @ParameterizedTest
@@ -39,6 +39,6 @@ public class TestClassWithParameterizedTestAnnotation {
     }
 
     static Stream<Arguments> someMethod() {
-        return Stream.of(Arguments.of("foo"));
+        return Stream.of(Arguments.of("foo"), Arguments.of("bar"));
     }
 }

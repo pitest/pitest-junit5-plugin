@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.pitest.junit5.cucumber.RunCucumberTest;
+import org.pitest.junit5.repository.ParameterizedNoExplicitSource;
 import org.pitest.junit5.repository.TestClassWithFailingTest;
 import org.pitest.junit5.repository.TestClassWithIncludedTestMethod;
 import org.pitest.junit5.repository.TestClassWithInheritedTestMethod;
@@ -100,8 +101,14 @@ class JUnit5TestUnitFinderTest {
 
     @Test
     void findsAndRunsParameterizedTests() {
-        findsAndRunsNTests(2, TestClassWithParameterizedTestAnnotation.class);
+        findsAndRunsNTests(4, TestClassWithParameterizedTestAnnotation.class);
     }
+
+    @Test
+    void findsAndRunsParameterizedTestsWithoutExplicitMethodSource() {
+        findsAndRunsNTests(2, ParameterizedNoExplicitSource.class);
+    }
+
 
     @Test
     void findsAndRunsTestsWithRepeatedATestAnnotation() {
