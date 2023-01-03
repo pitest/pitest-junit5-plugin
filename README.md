@@ -6,7 +6,7 @@ Adds support to pitest for JUnit 5 and the Jupiter api.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin)
 
-* 1.1.0 requires pitest 1.9.0 or above and JUnit Platform 1.9.x (Jupiter 5.9.1)
+* 1.1.x requires pitest 1.9.0 or above and JUnit Platform 1.9.x (Jupiter 5.9.1)
 * 1.0.0 requires pitest 1.9.0 or above and JUnit Platform 1.8.x (Jupiter 5.8.0)
 * 0.16 requires pitest 1.4.0 or above and JUnit Platform 1.8.x (Jupiter 5.8.0)
 * 0.15 requires pitest 1.4.0 or above and JUnit Platform 1.8.x (Jupiter 5.8.0)
@@ -28,12 +28,12 @@ To activate the plugin it must be placed on the classpath of the pitest tool (**
       <plugin>
         <groupId>org.pitest</groupId>
         <artifactId>pitest-maven</artifactId>
-        <version>1.9.0</version>
+        <version>1.10.3</version>
         <dependencies>
           <dependency>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-junit5-plugin</artifactId>
-            <version>1.1.0</version>
+            <version>1.1.1</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -51,8 +51,8 @@ plugins {
 
 pitest {
     //adds dependency to org.pitest:pitest-junit5-plugin and sets "testPlugin" to "junit5"
-    junit5PluginVersion = '1.0.0'
-    pitestVersion = '1.9.0'
+    junit5PluginVersion = '1.1.1'
+    pitestVersion = '1.10.3'
     // ...
 }
 ```
@@ -60,6 +60,10 @@ pitest {
 See [gradle-pitest-plugin documentation](https://github.com/szpak/gradle-pitest-plugin#pit-test-plugins-support) for more configuration options.
 
 ## Release Notes
+
+### 1.1.1
+
+* #73 Automatically disable parallel mode
 
 ### 0.16
 
