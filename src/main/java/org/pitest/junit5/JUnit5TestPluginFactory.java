@@ -31,6 +31,7 @@ public class JUnit5TestPluginFactory implements TestPluginFactory {
         ClassByteArraySource source, 
         Collection<String> excludedRunners,
         Collection<String> includedTestMethods) {
+        System.setProperty("junit.jupiter.execution.parallel.enabled", "false");
         return new JUnit5Configuration(config, includedTestMethods);
     }
 
