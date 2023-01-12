@@ -6,7 +6,9 @@ Adds support to pitest for JUnit 5 and the Jupiter api.
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin)
 
-* 1.1.x requires pitest 1.9.0 or above and JUnit Platform 1.9.x (Jupiter 5.9.1)
+* 1.1.2 requires pitest 1.9.0 or above and JUnit Platform 1.9.2 (Jupiter 5.9.2)
+* 1.1.1 requires pitest 1.9.0 or above and JUnit Platform 1.9.1 (Jupiter 5.9.1)
+* 1.1.0 requires pitest 1.9.0 or above and JUnit Platform 1.9.1 (Jupiter 5.9.1)
 * 1.0.0 requires pitest 1.9.0 or above and JUnit Platform 1.8.x (Jupiter 5.8.0)
 * 0.16 requires pitest 1.4.0 or above and JUnit Platform 1.8.x (Jupiter 5.8.0)
 * 0.15 requires pitest 1.4.0 or above and JUnit Platform 1.8.x (Jupiter 5.8.0)
@@ -17,7 +19,7 @@ Adds support to pitest for JUnit 5 and the Jupiter api.
 
 ## Usage
 
-The plugin has been built against JUnit platform 1.5.0 - you may encounter issues if you use it with a different version. 
+The plugin has been built against the versions of JUnit platform noted above - you may encounter issues if you use it with a different version. 
 
 To activate the plugin it must be placed on the classpath of the pitest tool (**not** on the classpath of the project being mutated).
 
