@@ -142,12 +142,6 @@
 			<groupId>org.pitest</groupId>
 			<artifactId>pitest</artifactId>
 			<version>${pitest.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>junit</groupId>
-					<artifactId>junit</artifactId>
-				</exclusion>
-			</exclusions>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
