@@ -20,7 +20,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.pitest.junit5.cucumber.RunCucumberTest;
+import org.pitest.junit5.repository.AbstractTestClass;
+import org.pitest.junit5.repository.InterfaceTestClass;
 import org.pitest.junit5.repository.ParameterizedNoExplicitSource;
+import org.pitest.junit5.repository.TestClassWithAbortingTest;
+import org.pitest.junit5.repository.TestClassWithAfterAll;
+import org.pitest.junit5.repository.TestClassWithBeforeAll;
+import org.pitest.junit5.repository.TestClassWithFailingAfterAll;
+import org.pitest.junit5.repository.TestClassWithFailingBeforeAll;
 import org.pitest.junit5.repository.TestClassWithFailingTest;
 import org.pitest.junit5.repository.TestClassWithIncludedTestMethod;
 import org.pitest.junit5.repository.TestClassWithInheritedTestMethod;
@@ -32,6 +39,7 @@ import org.pitest.junit5.repository.TestClassWithNestedAnnotationWithNestedAnnot
 import org.pitest.junit5.repository.TestClassWithNestedAnnotationWithNestedAnnotationAndNestedTestFactoryAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedClassWithNestedAnnotationAndNestedTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithNestedClassWithNestedAnnotationAndNestedTestFactoryAnnotation;
+import org.pitest.junit5.repository.TestClassWithNestedClassWithoutAnnotations;
 import org.pitest.junit5.repository.TestClassWithParameterizedTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithRepeatedTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithTags;
@@ -184,6 +192,46 @@ class JUnit5TestUnitFinderTest {
     @Test
     void includesTestsByTag() {
         findsAndRunsNTests(1, new JUnit5TestUnitFinder(new TestGroupConfig().withIncludedGroups("included"), emptyList()), TestClassWithTags.class);
+    }
+
+    @Test
+    void findsNoTestsInAbstractTestClass() {
+        findsAndRunsNTests(0, AbstractTestClass.class);
+    }
+
+    @Test
+    void findsNoTestsInTestInterface() {
+        findsAndRunsNTests(0, InterfaceTestClass.class);
+    }
+
+    @Test
+    void findsAndRunsAbortedTest() {
+        findsAndRunsNTests(1, TestClassWithAbortingTest.class);
+    }
+
+    @Test
+    void findsAndRunsTestsWithAfterAll() {
+        findsAndRunsNTests(2, TestClassWithAfterAll.class);
+    }
+
+    @Test
+    void findsAndRunsTestsWithBeforeAll() {
+        findsAndRunsNTests(2, TestClassWithBeforeAll.class);
+    }
+
+    @Test
+    void findsAndRunsTestsWithFailingAfterAll() {
+        findsAndRunsNTests(2, TestClassWithFailingAfterAll.class);
+    }
+
+    @Test
+    void findsNoTestsWithFailingBeforeAll() {
+        findsAndRunsNTests(0, TestClassWithFailingBeforeAll.class);
+    }
+
+    @Test
+    void findsNoTestsWithNestedTestClassWithoutAnnotations() {
+        findsAndRunsNTests(0, TestClassWithNestedClassWithoutAnnotations.class);
     }
 
     @Test
