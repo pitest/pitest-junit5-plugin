@@ -5,7 +5,7 @@
 	<groupId>org.pitest</groupId>
 	<artifactId>pitest-junit5-plugin</artifactId>
 	<version>${revision}</version>
-        
+
 	<name>pitest-junit5-plugin</name>
 	<url>http://pitest.org</url>
 	<description>JUnit 5 plugin for pitest</description>
@@ -25,6 +25,8 @@
 		<mockito.version>2.7.6</mockito.version>
 		<pitest.version>1.9.0</pitest.version>
 		<cucumber.version>5.0.0</cucumber.version>
+		<spock.version>2.3-groovy-4.0</spock.version>
+		<groovy.version>4.0.11</groovy.version>
 	</properties>
 
 	<scm>
@@ -137,6 +139,25 @@
 		</profile>
 	</profiles>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.spockframework</groupId>
+				<artifactId>spock-bom</artifactId>
+				<version>${spock.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.groovy</groupId>
+				<artifactId>groovy-bom</artifactId>
+				<version>${groovy.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.pitest</groupId>
@@ -179,6 +200,11 @@
 			<version>${cucumber.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.spockframework</groupId>
+			<artifactId>spock-core</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -191,12 +217,27 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<groupId>org.codehaus.gmavenplus</groupId>
+				<artifactId>gmavenplus-plugin</artifactId>
+				<version>2.1.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>generateTestStubs</goal>
+							<goal>compileTests</goal>
+							<goal>removeTestStubs</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.22.2</version>
 				<configuration>
 					<excludes>
 						<exclude>**/TestClass*</exclude>
+						<exclude>**/TestSpec*</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
