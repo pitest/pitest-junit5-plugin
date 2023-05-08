@@ -29,10 +29,10 @@ import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.TagFilter;
+import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
-import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
 import org.pitest.testapi.Description;
 import org.pitest.testapi.TestGroupConfig;
 import org.pitest.testapi.TestUnit;
@@ -92,7 +92,7 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                 .collect(toList());
     }
 
-    private class TestIdentifierListener extends SummaryGeneratingListener {
+    private class TestIdentifierListener implements TestExecutionListener {
         private final Class<?> testClass;
         private final TestUnitExecutionListener l;
         private final List<TestIdentifier> identifiers = new ArrayList<>();
