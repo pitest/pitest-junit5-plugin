@@ -96,6 +96,7 @@ public class JUnit5TestUnit extends AbstractTestUnit implements ExecutedInDiscov
 
     @Override
     public String toString() {
-        return "JUnit5TestUnit[" + testIdentifier.getUniqueId() + "]";
+        return "JUnit5TestUnit [uniqueId=" + testIdentifier.getUniqueId()
+               + ", displayName=" + testIdentifier.getDisplayName() + "]";
     }
 }
