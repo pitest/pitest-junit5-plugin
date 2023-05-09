@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.synchronizedList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 
@@ -95,7 +96,7 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
     private class TestIdentifierListener implements TestExecutionListener {
         private final Class<?> testClass;
         private final TestUnitExecutionListener l;
-        private final List<TestIdentifier> identifiers = new ArrayList<>();
+        private final List<TestIdentifier> identifiers = synchronizedList(new ArrayList<>());
 
         public TestIdentifierListener(Class<?> testClass, TestUnitExecutionListener l) {
             this.testClass = testClass;
@@ -103,7 +104,7 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
         }
 
         List<TestIdentifier> getIdentifiers() {
-            return unmodifiableList(identifiers);
+            return unmodifiableList(new ArrayList<>(identifiers));
         }
 
         @Override
