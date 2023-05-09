@@ -1,6 +1,6 @@
 # JUnit 5 Plugin 
 
-Adds support to pitest for JUnit 5 and the Jupiter api.
+Adds support to pitest for JUnit 5 platform test engines, e.g. Jupiter, Cucumber, or Spock.
 
 ## Versions
 

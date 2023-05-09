@@ -47,6 +47,20 @@ import org.pitest.junit5.repository.TestClassWithTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestFactoryAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestTemplateAnnotation;
 import org.pitest.junit5.repository.TestClassWithoutAnnotations;
+import org.pitest.junit5.repository.TestSpecWithCleanupSpec;
+import org.pitest.junit5.repository.TestSpecWithAbortingFeature;
+import org.pitest.junit5.repository.TestSpecWithDataDrivenFeature;
+import org.pitest.junit5.repository.TestSpecWithFailingCleanupSpec;
+import org.pitest.junit5.repository.TestSpecWithFailingFeature;
+import org.pitest.junit5.repository.TestSpecWithFailingSetupSpec;
+import org.pitest.junit5.repository.TestSpecWithIncludedFeature;
+import org.pitest.junit5.repository.TestSpecWithInheritedFeature;
+import org.pitest.junit5.repository.TestSpecWithMixedPassAndFail;
+import org.pitest.junit5.repository.TestSpecWithMultiplePassingFeatures;
+import org.pitest.junit5.repository.TestSpecWithSetupSpec;
+import org.pitest.junit5.repository.TestSpecWithSimpleFeature;
+import org.pitest.junit5.repository.TestSpecWithTags;
+import org.pitest.junit5.repository.TestSpecWithoutFeatures;
 import org.pitest.testapi.Description;
 import org.pitest.testapi.ExecutedInDiscovery;
 import org.pitest.testapi.NullExecutionListener;
@@ -69,8 +83,18 @@ class JUnit5TestUnitFinderTest {
     }
 
     @Test
+    void findsAndRunsBasicSpockTests() {
+        findsAndRunsNTests(1, TestSpecWithSimpleFeature.class);
+    }
+
+    @Test
     void findsAndRunsBasicJupiterTestsWhenMultiplePresent() {
         findsAndRunsNTests(3, TestClassWithMultiplePassingTests.class);
+    }
+
+    @Test
+    void findsAndRunsBasicSpockTestsWhenMultiplePresent() {
+        findsAndRunsNTests(3, TestSpecWithMultiplePassingFeatures.class);
     }
 
     @Test
@@ -78,6 +102,18 @@ class JUnit5TestUnitFinderTest {
         JUnit5TestUnitFinder underTest = basicConfig();
         List<Description> runInDiscovery = run(underTest, TestClassWithMultiplePassingTests.class).started;
         List<Description> discovered = underTest.findTestUnits(TestClassWithMultiplePassingTests.class, new NullExecutionListener())
+                .stream()
+                .map(tu -> tu.getDescription())
+                .collect(Collectors.toList());
+
+        assertThat(runInDiscovery).containsExactlyInAnyOrderElementsOf(discovered);
+    }
+
+    @Test
+    void descriptionsOfTestsRunDuringDiscoveryMatchThoseOfDiscoveredSpockTests() {
+        JUnit5TestUnitFinder underTest = basicConfig();
+        List<Description> runInDiscovery = run(underTest, TestSpecWithMultiplePassingFeatures.class).started;
+        List<Description> discovered = underTest.findTestUnits(TestSpecWithMultiplePassingFeatures.class, new NullExecutionListener())
                 .stream()
                 .map(tu -> tu.getDescription())
                 .collect(Collectors.toList());
@@ -95,9 +131,24 @@ class JUnit5TestUnitFinderTest {
     }
 
     @Test
+    void discoveredSpockTestsAreMarkedAsExecuted() {
+       JUnit5TestUnitFinder underTest = basicConfig();
+       List<TestUnit> discovered = underTest.findTestUnits(TestSpecWithMultiplePassingFeatures.class,
+               new NullExecutionListener());
+
+        assertThat(discovered).allMatch(tu -> tu instanceof ExecutedInDiscovery);
+    }
+
+    @Test
     void detectsFailingTests() {
         findsAndRunsNTests(1, TestClassWithFailingTest.class);
         nTestsFails(1, TestClassWithFailingTest.class);
+    }
+
+    @Test
+    void detectsFailingSpockTests() {
+        findsAndRunsNTests(1, TestSpecWithFailingFeature.class);
+        nTestsFails(1, TestSpecWithFailingFeature.class);
     }
 
     @Test
@@ -106,6 +157,11 @@ class JUnit5TestUnitFinderTest {
         nTestsFails(2, TestClassWithMixedPassAndFail.class);
     }
 
+    @Test
+    void detectsErroringSpockTestsWhenPassingTestsPresent() {
+        nTestsPass(2, TestSpecWithMixedPassAndFail.class);
+        nTestsFails(2, TestSpecWithMixedPassAndFail.class);
+    }
 
     @Test
     void findsAndRunsParameterizedTests() {
@@ -131,6 +187,11 @@ class JUnit5TestUnitFinderTest {
     @Test
     void findsAndRunsTestsFromTestTemplateAnnotation() {
         findsAndRunsNTests(1, TestClassWithTestTemplateAnnotation.class);
+    }
+
+    @Test
+    void findsAndRunsTestsFromDataDrivenSpockFeature() {
+        findsAndRunsNTests(2, TestSpecWithDataDrivenFeature.class);
     }
 
     @Test
@@ -165,6 +226,11 @@ class JUnit5TestUnitFinderTest {
     }
 
     @Test
+    void findsNoSpockTestsWhenNoFeaturesDefined() {
+        findsAndRunsNTests(0, TestSpecWithoutFeatures.class);
+    }
+
+    @Test
     void findsNoTestsInOuterClassWhenNestedAnnotationPresent() {
         findsAndRunsNTests(0, TestClassWithNestedClassWithNestedAnnotationAndNestedTestAnnotation.class);
     }
@@ -180,8 +246,18 @@ class JUnit5TestUnitFinderTest {
     }
 
     @Test
+    void findsInheritedSpockTests() {
+        findsAndRunsNTests(1, TestSpecWithInheritedFeature.class);
+    }
+
+    @Test
     void findsTestsIncludedByMethodName() {
         findsAndRunsNTests(1, new JUnit5TestUnitFinder(new TestGroupConfig(), singletonList("included")), TestClassWithIncludedTestMethod.class);
+    }
+
+    @Test
+    void findsSpockTestsIncludedByMethodName() {
+        findsAndRunsNTests(1, new JUnit5TestUnitFinder(new TestGroupConfig(), singletonList("included")), TestSpecWithIncludedFeature.class);
     }
 
     @Test
@@ -189,9 +265,18 @@ class JUnit5TestUnitFinderTest {
         findsAndRunsNTests(3, new JUnit5TestUnitFinder(new TestGroupConfig().withExcludedGroups("excluded"), emptyList()), TestClassWithTags.class);
     }
 
+    void excludesSpockTestsByTag() {
+        findsAndRunsNTests(3, new JUnit5TestUnitFinder(new TestGroupConfig().withExcludedGroups("excluded"), emptyList()), TestSpecWithTags.class);
+    }
+
     @Test
     void includesTestsByTag() {
         findsAndRunsNTests(1, new JUnit5TestUnitFinder(new TestGroupConfig().withIncludedGroups("included"), emptyList()), TestClassWithTags.class);
+    }
+
+    @Test
+    void includesSpockTestsByTag() {
+        findsAndRunsNTests(1, new JUnit5TestUnitFinder(new TestGroupConfig().withIncludedGroups("included"), emptyList()), TestSpecWithTags.class);
     }
 
     @Test
@@ -210,8 +295,18 @@ class JUnit5TestUnitFinderTest {
     }
 
     @Test
+    void findsAndRunsAbortedSpockTest() {
+        findsAndRunsNTests(3, TestSpecWithAbortingFeature.class);
+    }
+
+    @Test
     void findsAndRunsTestsWithAfterAll() {
         findsAndRunsNTests(2, TestClassWithAfterAll.class);
+    }
+
+    @Test
+    void findsAndRunsTestsWithCleanupSpec() {
+        findsAndRunsNTests(2, TestSpecWithCleanupSpec.class);
     }
 
     @Test
@@ -220,13 +315,28 @@ class JUnit5TestUnitFinderTest {
     }
 
     @Test
+    void findsAndRunsTestsWithSetupSpec() {
+        findsAndRunsNTests(2, TestSpecWithSetupSpec.class);
+    }
+
+    @Test
     void findsAndRunsTestsWithFailingAfterAll() {
         findsAndRunsNTests(2, TestClassWithFailingAfterAll.class);
     }
 
     @Test
+    void findsAndRunsTestsWithFailingCleanupSpec() {
+        findsAndRunsNTests(2, TestSpecWithFailingCleanupSpec.class);
+    }
+
+    @Test
     void findsNoTestsWithFailingBeforeAll() {
         findsAndRunsNTests(0, TestClassWithFailingBeforeAll.class);
+    }
+
+    @Test
+    void findsNoTestsWithFailingSetupSpec() {
+        findsAndRunsNTests(0, TestSpecWithFailingSetupSpec.class);
     }
 
     @Test
