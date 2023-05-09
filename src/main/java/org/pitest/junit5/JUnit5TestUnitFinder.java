@@ -22,7 +22,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 
-import org.junit.platform.commons.util.PreconditionViolationException;
+import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.engine.Filter;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
