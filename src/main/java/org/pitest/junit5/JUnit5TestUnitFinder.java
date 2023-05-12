@@ -17,6 +17,10 @@ package org.pitest.junit5;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedList;
@@ -26,6 +30,7 @@ import static java.util.stream.Collectors.toList;
 import org.junit.platform.commons.PreconditionViolationException;
 import org.junit.platform.engine.Filter;
 import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.Launcher;
@@ -35,6 +40,7 @@ import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.pitest.testapi.Description;
+import org.pitest.testapi.NullExecutionListener;
 import org.pitest.testapi.TestGroupConfig;
 import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.TestUnitExecutionListener;
@@ -97,10 +103,43 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
         private final Class<?> testClass;
         private final TestUnitExecutionListener l;
         private final List<TestIdentifier> identifiers = synchronizedList(new ArrayList<>());
+        private final boolean serializeExecution;
+        // This map holds the locks that child tests of locked parent tests should use.
+        // For example parallel data-driven Spock features start the feature execution which is CONTAINER_AND_TEST,
+        // then wait for the parallel iteration executions to be finished which are TEST,
+        // then finish the feature execution.
+        // Due to that we cannot lock the iteration executions on the same lock as the feature executions,
+        // as the feature execution is around all the subordinate iteration executions.
+        //
+        // This logic will of course break if there is some test engine that does strange setups like
+        // having CONTAINER_AND_TEST with child CONTAINER that have child TEST and similar.
+        // If those engines happen to be used, tests will start to deadlock, as the grand-child test
+        // would not find the parent serializer and thus use the root serializer on which the grand-parent
+        // CONTAINER_AND_TEST already locks.
+        //
+        // This setup would probably not make much sense, so should not be taken into account
+        // unless such an engine actually pops up. If it does and someone tries to use it with PIT,
+        // the logic should maybe be made more sophisticated like remembering the parent-child relationships
+        // to be able to find the grand-parent serializer which is not possible stateless, because we are
+        // only able to get the parent identifier directly, but not further up stateless.
+        private final Map<UniqueId, AtomicReference<ReentrantLock>> parentCoverageSerializers = new ConcurrentHashMap<>();
+        // This map holds the actual lock used for a specific test to be able to easily and safely unlock
+        // without the need to recalculate which lock to use.
+        private final Map<UniqueId, ReentrantLock> coverageSerializers = new ConcurrentHashMap<>();
+        private final ReentrantLock rootCoverageSerializer = new ReentrantLock();
 
         public TestIdentifierListener(Class<?> testClass, TestUnitExecutionListener l) {
             this.testClass = testClass;
             this.l = l;
+            // PIT gives a coverage recording listener here during coverage recording
+            // At the later stage during minion hunting a NullExecutionListener is given
+            // as PIT is only interested in the resulting list of identifiers.
+            // Serialization of test execution is only necessary during coverage calculation
+            // currently. To be on the safe side serialize test execution for any listener
+            // type except listener types where we know tests can run in parallel safely,
+            // i.e. currently the NullExecutionListener which is the only other one besides
+            // the coverage recording listener.
+            serializeExecution = !(l instanceof NullExecutionListener);
         }
 
         List<TestIdentifier> getIdentifiers() {
@@ -117,11 +156,31 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                         && !includedTestMethods.contains(((MethodSource)testIdentifier.getSource().get()).getMethodName())) {
                     return;
                 }
+
+                if (serializeExecution) {
+                    coverageSerializers.compute(testIdentifier.getUniqueIdObject(), (uniqueId, lock) -> {
+                        if (lock != null) {
+                            throw new AssertionError("No lock should be present");
+                        }
+
+                        // find the serializer to lock the test on
+                        // if there is a parent test locked, use the lock for its children if not,
+                        // use the root serializer
+                        return testIdentifier
+                                .getParentIdObject()
+                                .map(parentCoverageSerializers::get)
+                                .map(lockRef -> lockRef.updateAndGet(parentLock ->
+                                        parentLock == null ? new ReentrantLock() : parentLock))
+                                .orElse(rootCoverageSerializer);
+                    }).lock();
+                    // record a potential serializer for child tests to lock on
+                    parentCoverageSerializers.put(testIdentifier.getUniqueIdObject(), new AtomicReference<>());
+                }
+
                 l.executionStarted(new Description(testIdentifier.getUniqueId(), testClass));
                 identifiers.add(testIdentifier);
             }
         }
-
 
         @Override
         public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
@@ -133,6 +192,16 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                 l.executionFinished(new Description(testIdentifier.getUniqueId(), testClass), false);
             } else if (testIdentifier.isTest()) {
                 l.executionFinished(new Description(testIdentifier.getUniqueId(), testClass), true);
+            }
+
+            if (serializeExecution) {
+                // forget the potential serializer for child tests
+                parentCoverageSerializers.remove(testIdentifier.getUniqueIdObject());
+                // unlock the serializer for the finished tests to let the next test continue
+                ReentrantLock lock = coverageSerializers.remove(testIdentifier.getUniqueIdObject());
+                if (lock != null) {
+                    lock.unlock();
+                }
             }
         }
 
