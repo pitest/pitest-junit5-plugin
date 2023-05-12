@@ -23,7 +23,7 @@
 		<junit.platform.version>1.9.2</junit.platform.version>
 		<junit.version>5.9.2</junit.version>
 		<mockito.version>2.7.6</mockito.version>
-		<pitest.version>1.9.0</pitest.version>
+		<pitest.version>1.13.2</pitest.version>
 		<cucumber.version>5.0.0</cucumber.version>
 		<spock.version>2.3-groovy-4.0</spock.version>
 		<junit4.version>4.13.2</junit4.version>

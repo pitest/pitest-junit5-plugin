@@ -191,7 +191,7 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                         lock(testIdentifier);
                     }
 
-                    l.executionStarted(new Description(testIdentifier.getUniqueId(), testClass));
+                    l.executionStarted(new Description(testIdentifier.getUniqueId(), testClass), true);
                     identifiers.add(testIdentifier);
                 }
                 return;
@@ -211,7 +211,7 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                     parentCoverageSerializers.put(testIdentifier.getUniqueIdObject(), new AtomicReference<>());
                 }
 
-                l.executionStarted(new Description(testIdentifier.getUniqueId(), testClass));
+                l.executionStarted(new Description(testIdentifier.getUniqueId(), testClass), true);
                 identifiers.add(testIdentifier);
             }
         }
