@@ -48,8 +48,14 @@ import org.pitest.junit5.repository.TestClassWithTestAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestFactoryAnnotation;
 import org.pitest.junit5.repository.TestClassWithTestTemplateAnnotation;
 import org.pitest.junit5.repository.TestClassWithoutAnnotations;
-import org.pitest.junit5.repository.TestSpecWithCleanupSpec;
 import org.pitest.junit5.repository.TestSpecWithAbortingFeature;
+import org.pitest.junit5.repository.TestSpecWithAfterAll;
+import org.pitest.junit5.repository.TestSpecWithAfterClass;
+import org.pitest.junit5.repository.TestSpecWithBeforeAll;
+import org.pitest.junit5.repository.TestSpecWithBeforeClass;
+import org.pitest.junit5.repository.TestSpecWithClassRuleField;
+import org.pitest.junit5.repository.TestSpecWithClassRuleMethod;
+import org.pitest.junit5.repository.TestSpecWithCleanupSpec;
 import org.pitest.junit5.repository.TestSpecWithDataDrivenFeature;
 import org.pitest.junit5.repository.TestSpecWithFailingCleanupSpec;
 import org.pitest.junit5.repository.TestSpecWithFailingFeature;
@@ -59,7 +65,11 @@ import org.pitest.junit5.repository.TestSpecWithInheritedFeature;
 import org.pitest.junit5.repository.TestSpecWithMixedPassAndFail;
 import org.pitest.junit5.repository.TestSpecWithMultiplePassingFeatures;
 import org.pitest.junit5.repository.TestSpecWithSetupSpec;
+import org.pitest.junit5.repository.TestSpecWithSetupSpecWithoutShared;
+import org.pitest.junit5.repository.TestSpecWithShared;
 import org.pitest.junit5.repository.TestSpecWithSimpleFeature;
+import org.pitest.junit5.repository.TestSpecWithStepwise;
+import org.pitest.junit5.repository.TestSpecWithStepwiseFeature;
 import org.pitest.junit5.repository.TestSpecWithTags;
 import org.pitest.junit5.repository.TestSpecWithoutFeatures;
 import org.pitest.testapi.Description;
@@ -321,8 +331,8 @@ class JUnit5TestUnitFinderTest {
     }
 
     @Test
-    void findsAndRunsTestsWithCleanupSpec() {
-        findsAndRunsNTests(2, TestSpecWithCleanupSpec.class);
+    void findsAndRunsAtomicTestWithCleanupSpec() {
+        findsAndRunsNTests(1, TestSpecWithCleanupSpec.class);
     }
 
     @Test
@@ -331,8 +341,8 @@ class JUnit5TestUnitFinderTest {
     }
 
     @Test
-    void findsAndRunsTestsWithSetupSpec() {
-        findsAndRunsNTests(2, TestSpecWithSetupSpec.class);
+    void findsAndRunsAtomicTestWithSetupSpec() {
+        findsAndRunsNTests(1, TestSpecWithSetupSpec.class);
     }
 
     @Test
@@ -342,8 +352,8 @@ class JUnit5TestUnitFinderTest {
     }
 
     @Test
-    void findsAndRunsTestsWithFailingCleanupSpec() {
-        findsAndRunsNTests(2, TestSpecWithFailingCleanupSpec.class);
+    void findsAndRunsAtomicTestWithFailingCleanupSpec() {
+        findsAndRunsNTests(1, TestSpecWithFailingCleanupSpec.class);
     }
 
     @Test
@@ -352,13 +362,63 @@ class JUnit5TestUnitFinderTest {
     }
 
     @Test
-    void findsNoTestsWithFailingSetupSpec() {
-        findsAndRunsNTests(0, TestSpecWithFailingSetupSpec.class);
+    void findsAndRunsAtomicTestWithFailingSetupSpec() {
+        findsAndRunsNTests(1, TestSpecWithFailingSetupSpec.class);
     }
 
     @Test
     void findsNoTestsWithNestedTestClassWithoutAnnotations() {
         findsAndRunsNTests(0, TestClassWithNestedClassWithoutAnnotations.class);
+    }
+
+    @Test
+    void findsAndRunsAtomicTestWithAfterAll() {
+        findsAndRunsNTests(1, TestSpecWithAfterAll.class);
+    }
+
+    @Test
+    void findsAndRunsAtomicTestWithAfterClass() {
+        findsAndRunsNTests(1, TestSpecWithAfterClass.class);
+    }
+
+    @Test
+    void findsAndRunsAtomicTestWithBeforeAll() {
+        findsAndRunsNTests(1, TestSpecWithBeforeAll.class);
+    }
+
+    @Test
+    void findsAndRunsAtomicTestWithBeforeClass() {
+        findsAndRunsNTests(1, TestSpecWithBeforeClass.class);
+    }
+
+    @Test
+    void findsAndRunsAtomicTestWithClassRuleField() {
+        findsAndRunsNTests(1, TestSpecWithClassRuleField.class);
+    }
+
+    @Test
+    void findsAndRunsAtomicTestWithClassRuleMethod() {
+        findsAndRunsNTests(1, TestSpecWithClassRuleMethod.class);
+    }
+
+    @Test
+    void findsAndRunsAtomicTestWithSetupSpecWithoutShared() {
+        findsAndRunsNTests(1, TestSpecWithSetupSpecWithoutShared.class);
+    }
+
+    @Test
+    void findsAndRunsAtomicTestWithShared() {
+        findsAndRunsNTests(1, TestSpecWithShared.class);
+    }
+
+    @Test
+    void findsAndRunsAtomicTestWithStepwise() {
+        findsAndRunsNTests(1, TestSpecWithStepwise.class);
+    }
+
+    @Test
+    void findsAndRunsAtomicTestWithStepwiseFeature() {
+        findsAndRunsNTests(1, TestSpecWithStepwiseFeature.class);
     }
 
     @Test

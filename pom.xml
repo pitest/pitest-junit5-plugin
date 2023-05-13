@@ -26,6 +26,7 @@
 		<pitest.version>1.15.2</pitest.version>
 		<cucumber.version>5.0.0</cucumber.version>
 		<spock.version>2.3-groovy-4.0</spock.version>
+		<junit4.version>4.13.2</junit4.version>
 		<groovy.version>4.0.11</groovy.version>
 	</properties>
 
@@ -198,6 +199,12 @@
 		<dependency>
 			<groupId>org.spockframework</groupId>
 			<artifactId>spock-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit4.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
