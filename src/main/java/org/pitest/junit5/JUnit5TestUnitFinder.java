@@ -14,13 +14,22 @@
  */
 package org.pitest.junit5;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedList;
@@ -32,6 +41,7 @@ import org.junit.platform.engine.Filter;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
+import org.junit.platform.engine.support.descriptor.ClassSource;
 import org.junit.platform.engine.support.descriptor.MethodSource;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.TagFilter;
@@ -39,6 +49,8 @@ import org.junit.platform.launcher.TestExecutionListener;
 import org.junit.platform.launcher.TestIdentifier;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
+import org.pitest.functional.FCollection;
+import org.pitest.reflection.Reflection;
 import org.pitest.testapi.Description;
 import org.pitest.testapi.NullExecutionListener;
 import org.pitest.testapi.TestGroupConfig;
@@ -51,6 +63,22 @@ import org.pitest.testapi.TestUnitFinder;
  * @author Tobias Stadler
  */
 public class JUnit5TestUnitFinder implements TestUnitFinder {
+    private static final Optional<Class<?>> SPECIFICATION =
+            findClass("spock.lang.Specification");
+    private static final Optional<Class<? extends Annotation>> BEFORE_ALL =
+            findClass("org.junit.jupiter.api.BeforeAll");
+    private static final Optional<Class<? extends Annotation>> BEFORE_CLASS =
+            findClass("org.junit.BeforeClass");
+    private static final Optional<Class<? extends Annotation>> AFTER_ALL =
+            findClass("org.junit.jupiter.api.AfterAll");
+    private static final Optional<Class<? extends Annotation>> AFTER_CLASS =
+            findClass("org.junit.AfterClass");
+    private static final Optional<Class<? extends Annotation>> CLASS_RULE =
+            findClass("org.junit.ClassRule");
+    private static final Optional<Class<? extends Annotation>> SHARED =
+            findClass("spock.lang.Shared");
+    private static final Optional<Class<? extends Annotation>> STEPWISE =
+            findClass("spock.lang.Stepwise");
 
     private final TestGroupConfig testGroupConfig;
 
@@ -97,6 +125,15 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                 .stream()
                 .map(testIdentifier -> new JUnit5TestUnit(clazz, testIdentifier))
                 .collect(toList());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Optional<Class<? extends T>> findClass(String className) {
+        try {
+            return Optional.of(((Class<? extends T>) Class.forName(className)));
+        } catch (final ClassNotFoundException ex) {
+            return Optional.empty();
+        }
     }
 
     private class TestIdentifierListener implements TestExecutionListener {
@@ -148,31 +185,28 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
 
         @Override
         public void executionStarted(TestIdentifier testIdentifier) {
+            if (shouldTreatAsOneUnit(testIdentifier)) {
+                if (hasClassSource(testIdentifier)) {
+                    if (serializeExecution) {
+                        lock(testIdentifier);
+                    }
+
+                    l.executionStarted(new Description(testIdentifier.getUniqueId(), testClass));
+                    identifiers.add(testIdentifier);
+                }
+                return;
+            }
+
             if (testIdentifier.isTest()) {
                 // filter out testMethods
                 if (includedTestMethods != null && !includedTestMethods.isEmpty()
-                        && testIdentifier.getSource().isPresent()
-                        && testIdentifier.getSource().get() instanceof MethodSource
-                        && !includedTestMethods.contains(((MethodSource)testIdentifier.getSource().get()).getMethodName())) {
+                        && hasMethodSource(testIdentifier)
+                        && !includedTestMethods.contains(((MethodSource) testIdentifier.getSource().get()).getMethodName())) {
                     return;
                 }
 
                 if (serializeExecution) {
-                    coverageSerializers.compute(testIdentifier.getUniqueIdObject(), (uniqueId, lock) -> {
-                        if (lock != null) {
-                            throw new AssertionError("No lock should be present");
-                        }
-
-                        // find the serializer to lock the test on
-                        // if there is a parent test locked, use the lock for its children if not,
-                        // use the root serializer
-                        return testIdentifier
-                                .getParentIdObject()
-                                .map(parentCoverageSerializers::get)
-                                .map(lockRef -> lockRef.updateAndGet(parentLock ->
-                                        parentLock == null ? new ReentrantLock() : parentLock))
-                                .orElse(rootCoverageSerializer);
-                    }).lock();
+                    lock(testIdentifier);
                     // record a potential serializer for child tests to lock on
                     parentCoverageSerializers.put(testIdentifier.getUniqueIdObject(), new AtomicReference<>());
                 }
@@ -184,7 +218,17 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
 
         @Override
         public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
-            // Classes with failing BeforeAlls never start execution and identify as 'containers' not 'tests'
+            if (shouldTreatAsOneUnit(testIdentifier)) {
+                if (hasClassSource(testIdentifier)) {
+                    l.executionFinished(new Description(testIdentifier.getUniqueId(), testClass),
+                            testExecutionResult.getStatus() != TestExecutionResult.Status.FAILED);
+                    // unlock the serializer for the finished tests to let the next test continue
+                    unlock(testIdentifier);
+                }
+                return;
+            }
+
+            // Jupiter classes with failing BeforeAlls never start execution and identify as 'containers' not 'tests'
             if (testExecutionResult.getStatus() == TestExecutionResult.Status.FAILED) {
                 if (!identifiers.contains(testIdentifier)) {
                     identifiers.add(testIdentifier);
@@ -198,11 +242,145 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                 // forget the potential serializer for child tests
                 parentCoverageSerializers.remove(testIdentifier.getUniqueIdObject());
                 // unlock the serializer for the finished tests to let the next test continue
-                ReentrantLock lock = coverageSerializers.remove(testIdentifier.getUniqueIdObject());
-                if (lock != null) {
-                    lock.unlock();
-                }
+                unlock(testIdentifier);
             }
+        }
+
+        public void lock(TestIdentifier testIdentifier) {
+            coverageSerializers.compute(testIdentifier.getUniqueIdObject(), (uniqueId, lock) -> {
+                if (lock != null) {
+                    throw new AssertionError("No lock should be present");
+                }
+
+                // find the serializer to lock the test on
+                // if there is a parent test locked, use the lock for its children if not,
+                // use the root serializer
+                return testIdentifier
+                        .getParentIdObject()
+                        .map(parentCoverageSerializers::get)
+                        .map(lockRef -> lockRef.updateAndGet(parentLock ->
+                                parentLock == null ? new ReentrantLock() : parentLock))
+                        .orElse(rootCoverageSerializer);
+            }).lock();
+        }
+
+        public void unlock(TestIdentifier testIdentifier) {
+            ReentrantLock lock = coverageSerializers.remove(testIdentifier.getUniqueIdObject());
+            if (lock != null) {
+                lock.unlock();
+            }
+        }
+
+        private boolean hasClassSource(TestIdentifier testIdentifier) {
+            return testIdentifier.getSource().filter(ClassSource.class::isInstance).isPresent();
+        }
+
+        private boolean hasMethodSource(TestIdentifier testIdentifier) {
+            return testIdentifier.getSource().filter(MethodSource.class::isInstance).isPresent();
+        }
+
+        private boolean shouldTreatAsOneUnit(TestIdentifier testIdentifier) {
+            return shouldTreatSpockSpecificationAsOneUnit(testIdentifier);
+        }
+
+        private boolean shouldTreatSpockSpecificationAsOneUnit(TestIdentifier testIdentifier) {
+            Optional<Class<?>> optionalTestClass = getTestClass(testIdentifier);
+            if (!optionalTestClass.isPresent()) {
+                return false;
+            }
+
+            Class<?> testClass = optionalTestClass.get();
+            if (!isSpockSpecification(testClass)) {
+                return false;
+            }
+
+            Set<Method> methods = Reflection.allMethods(testClass);
+            return hasBeforeAllAnnotations(methods)
+                    || hasBeforeClassAnnotations(methods)
+                    || hasAfterAllAnnotations(methods)
+                    || hasAfterClassAnnotations(methods)
+                    || hasClassRuleAnnotations(testClass, methods)
+                    || hasAnnotation(testClass, STEPWISE.orElseThrow(AssertionError::new))
+                    || hasAnnotation(methods, STEPWISE.orElseThrow(AssertionError::new))
+                    || hasMethodNamed(methods, "setupSpec")
+                    || hasMethodNamed(methods, "cleanupSpec")
+                    || hasSharedField(testClass);
+        }
+
+        private Optional<Class<?>> getTestClass(TestIdentifier testIdentifier) {
+            if (hasClassSource(testIdentifier)) {
+                return Optional.of(
+                        testIdentifier
+                                .getSource()
+                                .map(ClassSource.class::cast)
+                                .orElseThrow(AssertionError::new)
+                                .getJavaClass());
+            }
+
+            if (hasMethodSource(testIdentifier)) {
+                return Optional.of(
+                        testIdentifier
+                                .getSource()
+                                .map(MethodSource.class::cast)
+                                .orElseThrow(AssertionError::new)
+                                .getJavaClass());
+            }
+
+            return Optional.empty();
+        }
+
+        private boolean isSpockSpecification(Class<?> clazz) {
+            return SPECIFICATION.filter(specification -> specification.isAssignableFrom(testClass)).isPresent();
+        }
+
+        private boolean hasBeforeAllAnnotations(Set<Method> methods) {
+            return BEFORE_ALL.filter(beforeAll -> hasAnnotation(methods, beforeAll)).isPresent();
+        }
+
+        private boolean hasBeforeClassAnnotations(Set<Method> methods) {
+            return BEFORE_CLASS.filter(beforeClass -> hasAnnotation(methods, beforeClass)).isPresent();
+        }
+
+        private boolean hasAfterAllAnnotations(Set<Method> methods) {
+            return AFTER_ALL.filter(afterAll -> hasAnnotation(methods, afterAll)).isPresent();
+        }
+
+        private boolean hasAfterClassAnnotations(Set<Method> methods) {
+            return AFTER_CLASS.filter(afterClass -> hasAnnotation(methods, afterClass)).isPresent();
+        }
+
+        private boolean hasClassRuleAnnotations(Class<?> clazz, Set<Method> methods) {
+            return CLASS_RULE.filter(aClass -> hasAnnotation(methods, aClass)
+                    || hasAnnotation(Reflection.publicFields(clazz), aClass)).isPresent();
+        }
+
+        private boolean hasAnnotation(AnnotatedElement annotatedElement, Class<? extends Annotation> annotation) {
+            return annotatedElement.isAnnotationPresent(annotation);
+        }
+
+        private boolean hasAnnotation(Set<? extends AnnotatedElement> methods, Class<? extends Annotation> annotation) {
+            return FCollection.contains(methods, annotatedElement -> annotatedElement.isAnnotationPresent(annotation));
+        }
+
+        private boolean hasMethodNamed(Set<Method> methods, String methodName) {
+            return FCollection.contains(methods, havingName(methodName));
+        }
+
+        private Predicate<Method> havingName(String methodName) {
+            return method -> method.getName().equals(methodName);
+        }
+
+        private boolean hasSharedField(Class<?> clazz) {
+            return hasAnnotation(allFields(clazz), SHARED.orElseThrow(AssertionError::new));
+        }
+
+        private Set<Field> allFields(Class<?> clazz) {
+            final Set<Field> fields = new LinkedHashSet<>();
+            if (clazz != null) {
+                fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+                fields.addAll(allFields(clazz.getSuperclass()));
+            }
+            return fields;
         }
 
     }
