@@ -39,12 +39,12 @@ To activate the plugin it must be placed on the classpath of the pitest tool (**
       <plugin>
         <groupId>org.pitest</groupId>
         <artifactId>pitest-maven</artifactId>
-        <version>1.10.3</version>
+        <version>1.14.2</version>
         <dependencies>
           <dependency>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-junit5-plugin</artifactId>
-            <version>1.1.1</version>
+            <version>1.2.0</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -62,8 +62,8 @@ plugins {
 
 pitest {
     //adds dependency to org.pitest:pitest-junit5-plugin and sets "testPlugin" to "junit5"
-    junit5PluginVersion = '1.1.1'
-    pitestVersion = '1.10.3'
+    junit5PluginVersion = '1.2.0'
+    pitestVersion = '1.14.2'
     // ...
 }
 ```
