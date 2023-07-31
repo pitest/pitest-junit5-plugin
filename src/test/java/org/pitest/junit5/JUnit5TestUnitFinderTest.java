@@ -265,6 +265,12 @@ class JUnit5TestUnitFinderTest {
         findsAndRunsNTests(3, new JUnit5TestUnitFinder(new TestGroupConfig().withExcludedGroups("excluded"), emptyList()), TestClassWithTags.class);
     }
 
+    @Test
+    void excludesIsEmpty() {
+        findsAndRunsNTests(4, new JUnit5TestUnitFinder(new TestGroupConfig().withExcludedGroups(""), emptyList()), TestClassWithTags.class);
+    }
+
+    @Test
     void excludesSpockTestsByTag() {
         findsAndRunsNTests(3, new JUnit5TestUnitFinder(new TestGroupConfig().withExcludedGroups("excluded"), emptyList()), TestSpecWithTags.class);
     }
@@ -272,6 +278,11 @@ class JUnit5TestUnitFinderTest {
     @Test
     void includesTestsByTag() {
         findsAndRunsNTests(1, new JUnit5TestUnitFinder(new TestGroupConfig().withIncludedGroups("included"), emptyList()), TestClassWithTags.class);
+    }
+
+    @Test
+    void includesIsEmpty() {
+        findsAndRunsNTests(4, new JUnit5TestUnitFinder(new TestGroupConfig().withIncludedGroups(""), emptyList()), TestClassWithTags.class);
     }
 
     @Test
