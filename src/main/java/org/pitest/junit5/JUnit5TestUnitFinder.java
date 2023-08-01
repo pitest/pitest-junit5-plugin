@@ -17,6 +17,7 @@ package org.pitest.junit5;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.synchronizedList;
@@ -66,13 +67,13 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
 
         List<Filter> filters = new ArrayList<>(2);
         try {
-            List<String> excludedGroups = testGroupConfig.getExcludedGroups();
-            if(excludedGroups != null && !excludedGroups.isEmpty()) {
+            List<String> excludedGroups = testGroupConfig.getExcludedGroups().stream().filter(group -> !group.isEmpty()).collect(Collectors.toList());
+            if(!excludedGroups.isEmpty()) {
                 filters.add(TagFilter.excludeTags(excludedGroups));
             }
 
-            List<String> includedGroups = testGroupConfig.getIncludedGroups();
-            if(includedGroups != null && !includedGroups.isEmpty()) {
+            List<String> includedGroups = testGroupConfig.getIncludedGroups().stream().filter(group -> !group.isEmpty()).collect(Collectors.toList());
+            if(!includedGroups.isEmpty()) {
                 filters.add(TagFilter.includeTags(includedGroups));
             }
         } catch(PreconditionViolationException e) {
