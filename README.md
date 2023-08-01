@@ -10,8 +10,7 @@ Release 1.2.0 requires pitest 1.14.0 or above.
 
 When used with the pitest-maven plugin, it will automatically work with JUnit platform 1.5.0 to 1.10.0-M1 (and probably above).
 
-When used with the pitest gradle plugin, it will automatically work with JUnit platform 1.9.2. To work with other versions an explicit dependency
-on junit-platform-launcher must be added to the project under test.
+When used with the pitest gradle plugin a dependency must be added to a compatible version of junit-platform-launcher. Depending on how the gradle project is configured the must be added wither a scope of either pitest, or a testImplementation.
 
 Older versions of the plugin must be matched to both the pitest and junit version in use as below.
 
