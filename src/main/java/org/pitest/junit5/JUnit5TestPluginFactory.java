@@ -27,11 +27,10 @@ import org.pitest.testapi.TestPluginFactory;
 public class JUnit5TestPluginFactory implements TestPluginFactory {
 
     @Override
-    public Configuration createTestFrameworkConfiguration(TestGroupConfig config, 
-        ClassByteArraySource source, 
+    public Configuration createTestFrameworkConfiguration(TestGroupConfig config,
+        ClassByteArraySource source,
         Collection<String> excludedRunners,
         Collection<String> includedTestMethods) {
-        System.setProperty("junit.jupiter.execution.parallel.enabled", "false");
         return new JUnit5Configuration(config, includedTestMethods);
     }
 
