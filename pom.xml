@@ -23,7 +23,7 @@
 		<junit.platform.version>1.9.2</junit.platform.version>
 		<junit.version>5.9.2</junit.version>
 		<mockito.version>2.7.6</mockito.version>
-		<pitest.version>1.9.0</pitest.version>
+		<pitest.version>1.15.2</pitest.version>
 		<cucumber.version>5.0.0</cucumber.version>
 		<spock.version>2.3-groovy-4.0</spock.version>
 		<groovy.version>4.0.11</groovy.version>
@@ -238,7 +238,7 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.5</version>
+				<version>0.8.11</version>
 				<executions>
 					<execution>
 						<goals>

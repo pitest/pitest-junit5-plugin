@@ -19,6 +19,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 import org.pitest.junit5.cucumber.RunCucumberTest;
 import org.pitest.junit5.repository.AbstractTestClass;
 import org.pitest.junit5.repository.InterfaceTestClass;
@@ -67,9 +68,11 @@ import org.pitest.testapi.NullExecutionListener;
 import org.pitest.testapi.TestGroupConfig;
 import org.pitest.testapi.TestUnit;
 import org.pitest.testapi.TestUnitExecutionListener;
+import org.spockframework.runtime.ConditionNotSatisfiedError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -149,12 +152,14 @@ class JUnit5TestUnitFinderTest {
     void detectsFailingSpockTests() {
         findsAndRunsNTests(1, TestSpecWithFailingFeature.class);
         nTestsFails(1, TestSpecWithFailingFeature.class);
+        errorIsRecorded(t -> t instanceof ConditionNotSatisfiedError, TestSpecWithFailingFeature.class);
     }
 
     @Test
     void detectsErroringTestsWhenPassingTestsPresent() {
         nTestsPass(2, TestClassWithMixedPassAndFail.class);
         nTestsFails(2, TestClassWithMixedPassAndFail.class);
+        errorIsRecorded(t -> t instanceof RuntimeException, TestClassWithMixedPassAndFail.class);
     }
 
     @Test
@@ -265,6 +270,7 @@ class JUnit5TestUnitFinderTest {
         findsAndRunsNTests(3, new JUnit5TestUnitFinder(new TestGroupConfig().withExcludedGroups("excluded"), emptyList()), TestClassWithTags.class);
     }
 
+    @Test
     void excludesSpockTestsByTag() {
         findsAndRunsNTests(3, new JUnit5TestUnitFinder(new TestGroupConfig().withExcludedGroups("excluded"), emptyList()), TestSpecWithTags.class);
     }
@@ -322,6 +328,7 @@ class JUnit5TestUnitFinderTest {
     @Test
     void findsAndRunsTestsWithFailingAfterAll() {
         findsAndRunsNTests(2, TestClassWithFailingAfterAll.class);
+        errorIsRecorded(t -> t instanceof AssertionFailedError, TestClassWithFailingAfterAll.class);
     }
 
     @Test
@@ -368,6 +375,11 @@ class JUnit5TestUnitFinderTest {
         assertThat(l.failed).hasSize(n);
     }
 
+    private void errorIsRecorded(Predicate<Throwable> p, Class<?> clazz) {
+        RecordingListener l = run(basicConfig(), clazz);
+        assertThat(l.errors).anyMatch(p);
+    }
+
     private RecordingListener run(JUnit5TestUnitFinder underTest, Class<?> clazz) {
         RecordingListener l = new RecordingListener();
         underTest.findTestUnits(clazz, l);
@@ -384,21 +396,8 @@ class RecordingListener implements TestUnitExecutionListener {
     List<Description> started = new ArrayList<>();
     List<Description> failed = new ArrayList<>();
     List<Description> passed = new ArrayList<>();
-    TestUnitExecutionListener l = new TestUnitExecutionListener() {
-        @Override
-        public void executionStarted(Description description) {
-            started.add(description);
-        }
 
-        @Override
-        public void executionFinished(Description description, boolean pass) {
-            if (pass) {
-                passed.add(description);
-            } else {
-                failed.add(description);
-            }
-        }
-    };
+    List<Throwable> errors = new ArrayList<>();
 
     @Override
     public void executionStarted(Description description) {
@@ -406,11 +405,15 @@ class RecordingListener implements TestUnitExecutionListener {
     }
 
     @Override
-    public void executionFinished(Description description, boolean pass) {
+    public void executionFinished(Description description, boolean pass, Throwable optional) {
         if (pass) {
             passed.add(description);
         } else {
             failed.add(description);
+        }
+
+        if (optional != null) {
+            errors.add(optional);
         }
     }
 }
