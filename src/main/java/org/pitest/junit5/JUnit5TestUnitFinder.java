@@ -130,9 +130,11 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                 if (!identifiers.contains(testIdentifier)) {
                     identifiers.add(testIdentifier);
                 }
-                l.executionFinished(new Description(testIdentifier.getUniqueId(), testClass), false);
+                l.executionFinished(new Description(testIdentifier.getUniqueId(), testClass)
+                        , false, testExecutionResult.getThrowable().orElse(null));
             } else if (testIdentifier.isTest()) {
-                l.executionFinished(new Description(testIdentifier.getUniqueId(), testClass), true);
+                l.executionFinished(new Description(testIdentifier.getUniqueId(), testClass)
+                        , true);
             }
         }
 
