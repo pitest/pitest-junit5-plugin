@@ -6,7 +6,7 @@ Adds support to pitest for JUnit 5 platform test engines, e.g. Jupiter, Cucumber
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin)
 
-Release 1.2.1 requires pitest 1.15.2 or above.
+Releases 1.2.1 and 1.2.2 requires pitest 1.15.2 or above.
 
 Release 1.2.0 requires pitest 1.14.0 or above.
 
@@ -72,6 +72,14 @@ pitest {
 See [gradle-pitest-plugin documentation](https://github.com/szpak/gradle-pitest-plugin#pit-test-plugins-support) for more configuration options.
 
 ## Release Notes
+
+### 1.2.2
+
+* #109 Set platform-launcher dependency to provided
+
+The pitest maven and gradle plugins now automatically resolve the correct version of platform launcher at
+runtime. The built against version of platform-launcher was however being included as a transative dependency sometimes
+causing a conflict at runtime.
 
 ### 1.2.1
 
