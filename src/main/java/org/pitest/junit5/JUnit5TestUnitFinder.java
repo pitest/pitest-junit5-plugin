@@ -67,12 +67,12 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
 
         List<Filter> filters = new ArrayList<>(2);
         try {
-            List<String> excludedGroups = testGroupConfig.getExcludedGroups().stream().filter(group -> !group.isEmpty()).collect(Collectors.toList());
+            List<String> excludedGroups = filterEmptyStrings(testGroupConfig.getExcludedGroups());
             if(!excludedGroups.isEmpty()) {
                 filters.add(TagFilter.excludeTags(excludedGroups));
             }
 
-            List<String> includedGroups = testGroupConfig.getIncludedGroups().stream().filter(group -> !group.isEmpty()).collect(Collectors.toList());
+            List<String> includedGroups = filterEmptyStrings(testGroupConfig.getIncludedGroups());
             if(!includedGroups.isEmpty()) {
                 filters.add(TagFilter.includeTags(includedGroups));
             }
@@ -92,6 +92,12 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
                 .stream()
                 .map(testIdentifier -> new JUnit5TestUnit(clazz, testIdentifier))
                 .collect(toList());
+    }
+
+    private List<String> filterEmptyStrings(List<String> testGroupConfig) {
+        return testGroupConfig.stream()
+                .filter(group -> !group.isEmpty())
+                .collect(Collectors.toList());
     }
 
     private class TestIdentifierListener implements TestExecutionListener {
