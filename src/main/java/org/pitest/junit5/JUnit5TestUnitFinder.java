@@ -25,6 +25,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 
 import org.junit.platform.commons.PreconditionViolationException;
+import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.Filter;
 import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
@@ -82,9 +83,14 @@ public class JUnit5TestUnitFinder implements TestUnitFinder {
 
         TestIdentifierListener listener = new TestIdentifierListener(clazz, executionListener);
 
+        // Although we have a class instance to examine, some junit 5 extensions (well Quarkus, but maybe also others)
+        // switch the classloader during discover. Must therefore drop back to a name string so classloading
+        // matches normal execution.
+        DiscoverySelector selector = DiscoverySelectors.selectClass(clazz.getName());
+
         launcher.execute(LauncherDiscoveryRequestBuilder
                 .request()
-                .selectors(DiscoverySelectors.selectClass(clazz))
+                .selectors(selector)
                 .filters(filters.toArray(new Filter[filters.size()]))
                 .build(), listener);
 
