@@ -6,6 +6,14 @@ Adds support to pitest for JUnit 5 platform test engines, e.g. Jupiter, Cucumber
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/org.pitest/pitest-junit5-plugin)
 
+## 1.2.3
+
+Adds support for Quarkus 3.22.x and above.
+
+Requires pitest 1.19.4 or above.
+
+## Older Versions
+
 Releases 1.2.1 and 1.2.2 requires pitest 1.15.2 or above.
 
 Release 1.2.0 requires pitest 1.14.0 or above.
